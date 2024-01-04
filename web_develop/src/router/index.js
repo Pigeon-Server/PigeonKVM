@@ -73,7 +73,7 @@ const routes = [
   },
   // 配置文件编辑
   {
-    path: "/config",
+    path: "/admin/settings",
     components: {
       default: configPage,
       // appBarBtn: appbar_default
