@@ -1,0 +1,22 @@
+.display {
+  width: 100%;
+  height: 100%;
+  /*max-height: calc(100vh - 35px);*/
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2a2a2a;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  /*position: relative;*/
+}
+#displayImage {
+  width: 100%;
+  /*height: 100%;*/
+  //width: 1920px;
+  //height: 1080px;
+  max-height: 85vh;
+  object-fit: cover;
+  user-select: none;
+}
