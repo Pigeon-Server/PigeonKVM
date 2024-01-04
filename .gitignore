@@ -8,3 +8,4 @@
 /configs/
 /app/migrations/
 /static/
+/dumpdata.json
