@@ -7,8 +7,9 @@ import userManagementPage from "@/views/admin/User.vue"
 import permissionManagementPage from "@/views/admin/Permission.vue"
 import auditAndLoggerPage from "@/views/admin/Audit.vue"
 import fileManagementPage from "@/views/Files.vue"
-import configPage from "@/views/Config.vue"
+import configPage from "@/views/admin/Config.vue"
 import aboutPage from "@/views/About.vue"
+import errorPage from "@/views/Error.vue"
 import appbar_default from "@/components/header/AppBar_Btn/default.vue"
 import appbar_controlPage from "@/components/header/AppBar_Btn/ControlsPage.vue"
 
@@ -81,9 +82,12 @@ const routes = [
   },
   // 关于
   {
-    path: "/about",
+    path: "/about/",
     component:aboutPage
-  }
+  },
+  // 错误
+  { path: '/error/:errorCode', component: errorPage },
+  { path: '/:pathMatch(.*)*', redirect: '/error/404' } // 重定向到404页
 ]
 
 const router = createRouter({

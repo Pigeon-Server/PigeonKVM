@@ -102,7 +102,7 @@ IPKVM Core是一个由Python+django编写的KVM程序，拥有更强大的审计
 **请求参数:**
 
 ##### 获取用户信息
->**URL:** /admin/api/getUserInfo
+>**URL:** /admin/api/getUserInfo  
 **方法:** POST  
 **需求权限:** manageUsers  
 **请求参数:**

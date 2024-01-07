@@ -17,7 +17,6 @@ def getAudit(req):
             pageSize = req_json.get("pageSize", 20)
             result = Audit.objects.filter()
             pageQuery = getPageContent(result, page if page > 0 else 1, pageSize)
-            Log.debug(result.count())
             if pageQuery:
                 for item in pageQuery:
                     PageContent.append({
@@ -52,7 +51,6 @@ def getAccessLog(req):
             pageSize = req_json.get("pageSize", 20)
             result = Access_Log.objects.filter()
             pageQuery = getPageContent(result, page if page > 0 else 1, pageSize)
-            Log.debug(result.count())
             if pageQuery:
                 for item in pageQuery:
                     PageContent.append({
@@ -86,7 +84,6 @@ def getFileChangeLog(req):
             pageSize = req_json.get("pageSize", 20)
             result = FileChange_Log.objects.filter()
             pageQuery = getPageContent(result, page if page > 0 else 1, pageSize)
-            Log.debug(result.count())
             if pageQuery:
                 for item in pageQuery:
                     PageContent.append({
@@ -120,7 +117,6 @@ def getSystemLog(req):
             pageSize = req_json.get("pageSize", 20)
             result = System_Log.objects.filter()
             pageQuery = getPageContent(result, page if page > 0 else 1, pageSize)
-            Log.debug(result.count())
             if pageQuery:
                 for item in pageQuery:
                     PageContent.append({

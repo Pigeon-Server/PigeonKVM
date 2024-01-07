@@ -4,6 +4,10 @@ import cv2
 import os
 from copy import copy
 from threading import Thread
+
+import msgpack
+from PIL import Image, ImageDraw, ImageFont
+
 import app.apis.WebSocket.control
 import app.util.Config as Config
 
@@ -23,6 +27,7 @@ class camera:
     __after = None
     __flag = 0
     __op = None
+    __watermark = None
     # 录制参数
     __recordArgs = {
         "User": None,
@@ -83,7 +88,7 @@ class camera:
     def isOpened(self):
         """查询摄像头是否开启"""
         return self.__camera.isOpened()
-    
+
     @Log.catch
     def __movingDetect(self, frame1, frame2):
         """检测图片是否变动"""
@@ -130,10 +135,21 @@ class camera:
             else:
                 sleep(0.5)
         return
-    
-    def setOp(self,value):
+
+    def setOp(self, value):
         self.__op = value
-        Log.debug(f"已设置操作员:{value}")
+        if value:
+            print(int(self.__camera.get(cv2.CAP_PROP_FRAME_WIDTH)))
+            print(int(self.__camera.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+            self.__watermark = self.__createWatermarkImage(
+                int(self.__camera.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                int(self.__camera.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+                f"Operator: {value}"
+            )
+            Log.debug(f"已设置操作员:{value}")
+        else:
+            self.__watermark = None
+            Log.debug(f"已清除操作员")
 
     def stopGetFrame(self):
         self.__status["GetFrameThread"] = False
@@ -220,6 +236,60 @@ class camera:
         Log.success("采集卡录制已停止")
         return
 
+    @Log.catch
+    def __createWatermarkImage(self, width: int, height: int, text: str, font_path=os.path.join(os.getcwd(),"font/Noto_Sans_SC/NotoSansSC-Medium.otf",), font_size=16, density=0.2)->np.array:
+        """
+        创建水印图片
+        :param width: 水印图片宽度
+        :param height:  水印图片高度
+        :param text: 水印文字
+        :param font_path: 字体路径
+        :param font_size: 字体大小
+        :param density: 密度
+        :return: np.array
+        """
+
+        # 创建一个透明的水印图片
+        watermark = np.zeros((height, width, 4), dtype=np.uint8)
+
+        # 使用默认字体或加载自定义字体
+        if font_path is not None and os.path.exists(font_path):
+            custom_font = ImageFont.truetype(font_path, size=font_size)
+        else:
+            custom_font = ImageFont.load_default()
+
+        # 使用PIL库添加文字水印
+        pil_watermark = Image.fromarray(watermark)
+        draw = ImageDraw.Draw(pil_watermark, 'RGBA')
+
+        # 计算水印的密度
+        num_watermarks = int(width * density)
+
+        # 计算水印的间隔，确保水印图像不超过原始图像的范围
+        interval = int(width / num_watermarks)
+
+        # 在整张画面添加水印
+        for y in range(0, height, font_size + 35 + interval):
+            for x in range(0, width, font_size + 150 + interval):
+                draw.text((x, y), text, font=custom_font, fill=(255, 255, 255, 255))
+
+        # 转换为NumPy数组
+        return np.array(pil_watermark)
+
+    @Log.catch
+    def __loadWatermarkToImage(self, frame, watermark: np.array, alpha=0.05):
+        """
+        加载水印到图像中
+        :param frame: 图像帧
+        :param watermark: 水印数组
+        :param alpha: 透明度
+        :return: frame
+        """
+        # # 将水印叠加到原始图片上
+        if watermark is not None:
+            return cv2.addWeighted(cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA), 1 - alpha, watermark, alpha, 0)
+        return frame
+
     def startRecord(self, op_user=None, machine_name=None, fps=24, dev=False):
         """启动后台录制
 
@@ -260,4 +330,11 @@ class camera:
 
     def getDisplayFrame(self):
         """获取用于web显示的采集卡帧"""
-        return cv2.imencode(".jpg", self.__cameraFrame)[1].tobytes()
+
+        # 将帧数据转换为字节流
+        _, encoded_frame = cv2.imencode(".jpg", self.__loadWatermarkToImage(self.__cameraFrame, self.__watermark))
+
+        # 使用MessagePack序列化帧数据
+        packed_frame = msgpack.packb(encoded_frame.tobytes(), use_bin_type=True)
+
+        return packed_frame

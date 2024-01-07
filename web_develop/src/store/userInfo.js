@@ -24,16 +24,19 @@ export const useUserStore = defineStore('UserInfo', {
   }),
   actions: {
     getUserInfo() {
-      axios.get("/userInfo/api/getInfo").then(res=>{
-        const data = res.data.data
-        this.id = data.id
-        this.userName = data.userName
-        this.realName = data.realName
-        this.group = data.group
-        this.email = data.email
-        this.permissions = data.permissions
-      }).catch(err=>{
-        console.log(err)
+      return new Promise((resolve)=>{
+        axios.get("/userInfo/api/getInfo").then(res=>{
+          const data = res.data.data
+          this.id = data.id
+          this.userName = data.userName
+          this.realName = data.realName
+          this.group = data.group
+          this.email = data.email
+          this.permissions = data.permissions
+          resolve()
+        }).catch(err=>{
+          console.log(err)
+        })
       })
     }
   },

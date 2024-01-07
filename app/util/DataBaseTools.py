@@ -1,4 +1,3 @@
-from django.db import models
 from app.util.logger import Log
 from app.models import Users, Audit, System_Log, Access_Log, FileChange_Log
 
@@ -26,8 +25,6 @@ def getPageContent(model, page: int, size: int):
     if getMaxPage(model.count(), size) >= page:
         pageStart = size * (page-1)
         pageEnd = pageStart + size
-        Log.debug(pageStart)
-        Log.debug(pageEnd)
         return model.values()[pageStart:pageEnd]
     else:
         return model.values()[model.count()-size if not model.count()-size < 0 else 0:model.count()]

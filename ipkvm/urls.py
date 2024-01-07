@@ -32,7 +32,7 @@ urlpatterns = [
     path('auth/login', auth.AuthLogin),  # 登入（POST）
     path('auth/logout', auth.AuthOutLog),  # 登出（ALL）
     # 控制
-    path('api/screen', Screen.getScreen),  # 获取屏幕（GET）
+    # path('api/screen', Screen.getScreen),  # 获取屏幕（GET）
     # 用户管理
     path('admin/api/getUserList', users.getUserList),  # 获取用户列表（ALL）
     path('admin/api/addUser', users.addUser),  # 新增用户（POST）

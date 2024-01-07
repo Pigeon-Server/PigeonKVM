@@ -24,9 +24,7 @@ def getUserList(req):
             search = req_json.get("search", "")
             result = Users.objects.filter(userName__icontains=search if search else "")
             pageQuery = getPageContent(result, page if page > 0 else 1, pageSize)
-            Log.debug(result.count())
             maxPage = getMaxPage(result.count(), pageSize)
-            Log.debug(result)
             if pageQuery:
                 for item in pageQuery:
                     PageContent.append({

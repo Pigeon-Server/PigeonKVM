@@ -17,19 +17,18 @@ def AuthLogin(req):
     if req.method == 'POST':
         req_json = RequestLoadJson(req)
         user = req_json.get("username")
-        password = req_json.get("password")
-        password = PasswordToMd5(password)
-        if Users.objects.filter(userName=user, password=password):
-            User = Users.objects.filter(userName=user, password=password).first()
-            if not User.disable:
-                req.session["user"] = user
-                req.session["userID"] = User.id
+        password = PasswordToMd5(req_json.get("password"))
+        user = Users.objects.filter(userName=user, password=password).first()
+        if user:
+            if not user.disable:
+                req.session["user"] = user.userName
+                req.session["userID"] = user.id
                 req.session.set_expiry(int(Config.main_config.get("main").get("sessionExpiry")) * 60)
                 Log.success(f"用户[{user}]已登陆")
-                User.lastLoginIP = getClientIp(req)
-                User.lastLoginTime = datetime.datetime.now()
-                User.save()
-                writeAudit(User.id, "Login", "Auth", User.lastLoginIP)
+                user.lastLoginIP = getClientIp(req)
+                user.lastLoginTime = datetime.datetime.now()
+                user.save()
+                writeAudit(user.id, "Login", "Auth", user.lastLoginIP)
                 return ResponseJson({"status": 1, "msg": "登录成功"})
             else:
                 return ResponseJson({"status": 0, "msg": "账户被禁用，请联系管理员"})
@@ -42,11 +41,8 @@ def AuthLogin(req):
 # 登出
 def AuthOutLog(req):
     if req.session.get("user"):
-        user = req.session.get("user")
-        userId = req.session.get("UserID")
+        writeAudit(req.session.get("userID"), "Outlog", "Auth", getClientIp(req))
         req.session.clear()
-        Log.success(f"用户[{user}]已登出")
-        writeAudit(userId, "Outlog", "Auth", getClientIp(req))
         return ResponseJson({"status": 1, "msg": "登出成功"})
     else:
         return ResponseJson({"status": 0, "msg": "您未登录"})

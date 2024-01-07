@@ -6,7 +6,7 @@ from channels.generic.websocket import WebsocketConsumer
 import app.apps as app
 import app.util.Config as Config
 from app.util.logger import Log
-from app.util.DataBaseTools import writeAccessLog
+from app.util.DataBaseTools import writeAccessLog, writeAudit
 
 links = {}
 
@@ -23,10 +23,11 @@ class controlPageWebSocket(WebsocketConsumer):
             self.accept()
             links.update({user: self})
             writeAccessLog(self.__userID, self.__clientIP, "Control Page Websocket Connect")
+            writeAudit(self.__userID, "Control Start", "control", "")
             if Config.main_config.get("main").get("record"):
                 app.cameraObj.startRecord(op_user=user, machine_name="DEV")
+                writeAudit(self.__userID, "Recording starts", "control", "")
             app.cameraObj.setOp(user)
-            Log.success(f"用户{user}已连接")
             self.sendJson({
                 "method": "init",
                 "data": {
@@ -36,6 +37,7 @@ class controlPageWebSocket(WebsocketConsumer):
                     }
                 }
             })
+            self.send(bytes_data=app.cameraObj.getDisplayFrame())
         else:
             self.close(-1)
 
@@ -44,19 +46,19 @@ class controlPageWebSocket(WebsocketConsumer):
         user = self.scope["session"].get("user")
         if Config.main_config.get("main").get("record"):
             app.cameraObj.stopRecord()
+            writeAudit(self.__userID, "Recording ends", "control", "")
         app.cameraObj.setOp(None)
         links.pop(user)
-        Log.success(f"用户{user}已断开({close_code})")
         writeAccessLog(self.__userID, self.__clientIP, f"Control Page Websocket Disconnect(Code:{close_code})")
+        writeAudit(self.__userID, "Control ends", "control", "")
         raise StopConsumer
 
     def receive(self, text_data):
         # 处理接收到的消息
-        Log.debug(text_data)
         try:
             jsonData = json.loads(text_data)
         except Exception as e:
-            print(f"解析Websocket消息时发生错误：\n{e}")
+            Log.error(f"解析Websocket消息时发生错误：\n{e}")
         else:
             if jsonData.get("method"):
                 match jsonData.get("method"):
@@ -126,7 +128,6 @@ class controlPageWebSocket(WebsocketConsumer):
                         app.HID.keyBoardInput(key)
                     # 键盘 - 抬起
                     case "keyup":
-                        # TODO 待重构
                         Log.debug("收到键盘抬起请求")
                         app.HID.keyBoardInput(mode="Clear")
                     # 粘贴

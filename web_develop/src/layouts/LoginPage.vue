@@ -55,9 +55,9 @@ export default {
                 console.log(data);
                 switch (data.status) {
                     case 1:
-                      const userStore = useUserStore()
-                      userStore.getUserInfo()
-                      location.href = "/"
+                      useUserStore().getUserInfo().then(()=>{
+                        location.href = "/"
+                      })
                       break;
                     default:
                       this.$notify.create({

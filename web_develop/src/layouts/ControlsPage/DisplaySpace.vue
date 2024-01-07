@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import msgpack from "msgpack-lite";
+
 import("@/styles/ControlPage/DisplaySpace.scss")
 export default {
   name: "displaySpace",
@@ -68,28 +70,100 @@ export default {
   },
   methods: {
     // 刷新图像
-    refreshDisplayImage() {
+    refreshDisplayImage(data) {
       const displayImage = document.querySelector("#displayImage")
-      displayImage.src = "/api/screen?"+Math.random()
-    },
-    // 显示错误消息
-    displayErrorMsg(msg,timeout) {
-      /*
-      * msg: 要显示的消息
-      * timeout: 消失时间
-      * */
-      this.error.msg = msg
-      this.error.display = true
-      let that = this
-      setTimeout(()=>{
-        that.error.msg = ""
-        that.error.display = false
-      },timeout)
+      const packedFrame = new Uint8Array(data)
+      // 使用 msgpack-lite 解码数据
+      const decodedFrame = msgpack.decode(packedFrame)
+
+      const blob = new Blob([decodedFrame], { type: 'image/jpeg' });
+      const reader = new FileReader();
+
+      reader.onload = function () {
+          const base64String = reader.result.split(',')[1];
+          displayImage.src = `data:image/jpeg;base64,${base64String}`;
+      };
+      reader.readAsDataURL(blob);
     },
     // 连接WebSocket
     connectWebSocket() {
       this.ws = new WebSocket(`ws://${location.host}/api/websocket/control`)
       this.ws.binaryType = "arraybuffer"
+      this.ws.addEventListener("error", (event) => this.webSocketError(event))
+      this.ws.addEventListener("open", () => this.onWebSocket);
+      this.ws.addEventListener("close", (event) => this.webSocketClose(event))
+      this.ws.addEventListener("message", (event) => this.webSocketMessage(event))
+    },
+    // WebSocket错误时
+    webSocketError(error) {
+      console.log(error)
+      this.$notify.create({
+        text: `连接发送错误：${error.message}`,
+        level: 'error',
+        location: 'bottom right',
+        notifyOptions: {
+          "close-delay": 3000
+        }
+      })
+    },
+    // WebSocket连接时
+    onWebSocket() {
+      console.log("Connect WebSocket")
+      this.$notify.create({
+        text: `连接服务器成功`,
+        level: 'success',
+        location: 'bottom right',
+        notifyOptions: {
+          "close-delay": 3000
+        }
+      })
+      this.ws.removeListener("open")
+    },
+    // WebSocket消息处理
+    webSocketMessage(event) {
+      if (event.data instanceof ArrayBuffer) {
+        this.refreshDisplayImage(event.data)
+      } else {
+        const data = JSON.parse(event.data)
+        console.log(data)
+        switch (data.method) {
+          // 初始化页面配置
+          case "init":
+            this.displayImageSize.original.width = data.data.display.width
+            this.displayImageSize.original.height = data.data.display.height
+            break
+          // 更新HID设备状态
+          case "updateHIDStatus":
+            break
+          // 更新图像显示
+          case "updateDisplayImage":
+            // this.refreshDisplayImage()
+            break
+          // 更新LED状态
+          case "updateLedStatus":
+            break
+          // 输入成功
+          case "inputSucceed":
+            break
+          default:
+            console.error("服务端返回了未知的方法："+data.method)
+            break
+        }
+      }
+    },
+    // WebSocket关闭时
+    webSocketClose(event) {
+      this.$notify.create({
+        text: `连接已断开：${event.code}`,
+        level: 'error',
+        location: 'bottom right',
+        notifyOptions: {
+          "close-delay": 3000
+        }
+      })
+      this.ws.removeListener("error")
+      this.ws.removeListener("message")
+      this.ws.removeListener("close")
     },
     // 将WebSocket返回的二进制图像转换为Base64
     arrayBufferToBase64(buffer) {
@@ -132,82 +206,10 @@ export default {
     }
   },
   created() {
-    let that = this
     this.connectWebSocket()
-    this.ws.addEventListener("error",event => {
-      console.log("WebSocket Error:"+event.message)
-      that.$notify.create({
-        text: `连接发送错误：${event.message}`,
-        level: 'error',
-        location: 'bottom right',
-        notifyOptions: {
-          "close-delay": 3000
-        }
-      })
-    })
-    this.ws.addEventListener("open", () => {
-      console.log("Link WebSocket")
-      that.$notify.create({
-        text: `连接服务器成功`,
-        level: 'success',
-        location: 'bottom right',
-        notifyOptions: {
-          "close-delay": 3000
-        }
-      })
-    });
-    this.ws.addEventListener("close", event => {
-      that.$notify.create({
-        text: `连接已断开：${event.code}`,
-        level: 'error',
-        location: 'bottom right',
-        notifyOptions: {
-          "close-delay": 3000
-        }
-      })
-    })
-    this.ws.addEventListener("message", event => {
-      const displayImage = document.querySelector("#displayImage")
-      if (event.data instanceof ArrayBuffer) {
-        displayImage.src='data:image/jpeg;base64,'+that.arrayBufferToBase64(event.data);
-      } else {
-        const data = JSON.parse(event.data)
-        console.log(data)
-        switch (data.method) {
-          // 初始化页面配置
-          case "init":
-            console.log("页面配置：\n",data.data)
-            that.displayImageSize.original.width = data.data.display.width
-            that.displayImageSize.original.height = data.data.display.height
-            console.log("初始化页面配置成功")
-            break
-          // 更新HID设备状态
-          case "updateHIDStatus":
-            break
-          // 更新图像显示
-          case "updateDisplayImage":
-            this.refreshDisplayImage()
-            break
-          // 更新LED状态
-          case "updateLedStatus":
-            break
-          // 输入成功
-          case "inputSucceed":
-            break
-          default:
-            console.error("服务端返回了未知的方法："+data.method)
-            break
-        }
-        // if (data.status) {
-        // } else {
-        //   console.error(`服务端返回了错误的状态：${data.msg}(status code:${data.status})`)
-        // }
-      }
-    })
   },
   mounted() {
     const displayImage = document.querySelector("#displayImage");
-    displayImage.src = "/api/screen"
     let onMouseMoveEvent,onMouseLeaveEvent = false
     let that = this
 
@@ -233,7 +235,6 @@ export default {
     // 鼠标移动
     displayImage.addEventListener("mousemove", (event) => {
       if (onMouseMoveEvent && (event.movementX !== 0 && event.movementY !== 0)) {
-        // console.log(`鼠标移动\nX:${event.offsetX}\tY:${event.offsetY}`)
         let sendData = {
           method:"mousemove",
           data: {
@@ -243,12 +244,11 @@ export default {
           }
         }
         SendWsData(sendData)
-        that.refreshDisplayImage()
+        // that.refreshDisplayImage()
       }
     });
     // 鼠标按下
     displayImage.addEventListener("mousedown", (event) => {
-      // console.log(`mousedown:\nbutton:${event.button}`)
       onMouseMoveEvent = true
       onMouseLeaveEvent = true
       const sendData = {
@@ -260,11 +260,10 @@ export default {
         }
       }
       SendWsData(sendData)
-      that.refreshDisplayImage()
+      // that.refreshDisplayImage()
     });
     // 鼠标抬起
     displayImage.addEventListener("mouseup", (event) => {
-      // console.log("mouseup")
       onMouseMoveEvent = false
       onMouseLeaveEvent = false
       const sendData = {
@@ -276,12 +275,11 @@ export default {
         }
       }
       SendWsData(sendData)
-      that.refreshDisplayImage()
+      // that.refreshDisplayImage()
     });
     // 鼠标移出
     displayImage.addEventListener("mouseleave", (event) => {
       if (onMouseLeaveEvent) {
-        // console.log("鼠标已移出检测区域")
         onMouseMoveEvent = false
         onMouseLeaveEvent = false
         const sendData = {
@@ -293,13 +291,12 @@ export default {
           }
         }
         SendWsData(sendData)
-        that.refreshDisplayImage()
+        // that.refreshDisplayImage()
       }
     });
     // 滚轮滚动
     displayImage.addEventListener("wheel", (event)=>{
       if (event.wheelDelta > 0) {
-        console.log("正向滚动")
         SendWsData({
           method:"mouseScroll",
           data: {
@@ -309,7 +306,6 @@ export default {
           }
         })
       } else if (event.wheelDelta < 0) {
-        console.log("反向滚动")
         SendWsData({
           method:"mouseScroll",
           data: {
@@ -348,7 +344,7 @@ export default {
           }
         }
         SendWsData(sendData)
-        that.refreshDisplayImage()
+        // that.refreshDisplayImage()
       }
     })
     // 键盘抬起
@@ -369,7 +365,7 @@ export default {
           }
         }
         SendWsData(sendData)
-        that.refreshDisplayImage()
+        // that.refreshDisplayImage()
       }
     })
     // 监听图像大小变化
@@ -378,7 +374,6 @@ export default {
         const { target, contentRect } = entry;
         that.displayImageSize.scaled.width = contentRect.width
         that.displayImageSize.scaled.height = contentRect.height
-        console.log(target,contentRect.width,contentRect.height)
         const {widthScale, heightScale} = that.calculateScaleRatio(
           that.displayImageSize.original.width,
           that.displayImageSize.original.height,

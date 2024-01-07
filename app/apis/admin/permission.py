@@ -22,7 +22,6 @@ def getPermissionGroupsList(req):
             search = req_json.get("search", "")
             result = Permission_groups.objects.filter(name__icontains=search if search else "")
             pageQuery = getPageContent(result, page if page > 0 else 1, pageSize)
-            Log.debug(result.count())
             if pageQuery:
                 for item in pageQuery:
                     PageContent.append({

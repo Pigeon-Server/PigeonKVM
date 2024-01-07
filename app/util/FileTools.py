@@ -8,7 +8,7 @@ import zipfile
 import chardet
 from datetime import datetime
 from app.util.logger import Log
-from util.DataBaseTools import writeFileChangeLog
+from app.util.DataBaseTools import writeFileChangeLog
 
 
 def mergePaths(homePath: str, path: list):

@@ -14,6 +14,7 @@
     "core-js": "^3.29.0",
     "cropperjs": "^1.6.1",
     "dropzone": "^6.0.0-beta.2",
+    "msgpack-lite": "^0.1.26",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
     "queue": "^7.0.0",

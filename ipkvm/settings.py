@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'app.middleware.AuthMiddleware.AuthMiddleware',
+    'app.middleware.PermissionsMiddleware.PermissionsMiddleware'
 ]
 
 ROOT_URLCONF = 'ipkvm.urls'

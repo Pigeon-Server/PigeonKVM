@@ -245,16 +245,16 @@ export default {
             this.editUserStatus.userId = uid
             this.editUserStatus.flag = true
           })
-
           break
         // 重置密码
         case "resetPassword":
           this.getUserInfo(uid).then(res=>{
             console.log(res.data)
             this.openInputDialog(uid, "设置新密码", "至少6字符，必须含有数字，小写字母，大写字母，特殊字符", null,(uid, input)=>{
+              console.log(uid, input)
               this.updateUserInfo(uid, {password: input})
               this.getUserList(this.search, this.currentPage)
-            })
+            }, "password")
           })
           break
         // 删除用户
@@ -373,7 +373,7 @@ export default {
         </v-card-text>
         <v-card-actions>
           <v-btn color="error" @click="inputDialog.flag = false;inputDialog.input = null">取消</v-btn>
-          <v-btn color="success" @click="inputDialog.callback(inputDialog.uid, inputDialog.input);inputDialog.flag = false;inputDialog.input = null">确定</v-btn>
+          <v-btn color="success" @click="inputDialog.callback ? inputDialog.callback(inputDialog.uid, inputDialog.input) : null;inputDialog.flag = false;inputDialog.input = null">确定</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
