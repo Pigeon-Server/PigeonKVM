@@ -27,6 +27,10 @@ class PermissionsMiddleware(MiddlewareMixin):
                 "/admin/settings": "changeSettings",
             },
             "api": {
+                "/control/api/fastInput": "controllingDevice",
+                "/control/api/buttonClick": "changeDevicePowerState",
+                "/control/api/getLedStatus": "viewDevice",
+
                 "/admin/api/getUserList": "manageUsers",
                 "/admin/api/addUser": "manageUsers",
                 "/admin/api/delUser": "manageUsers",
@@ -68,19 +72,21 @@ class PermissionsMiddleware(MiddlewareMixin):
 
         # 无权限时
         if not permission:
-            # print(user.name+"无权限组")
             if path_info in accessPermission.get("api").keys():
                 return ResponseJson({"status": -1, "msg": "未授权访问-账户无权限"})
             elif path_info in accessPermission.get("page").keys():
                 return redirect("/error/403")
 
         # 权限组被禁用时
-        elif permission.get("disable"):
-            # print(user.name + "权限组被禁用")
+        if permission.get("disable"):
             if path_info in accessPermission.get("api").keys():
                 return ResponseJson({"status": -1, "msg": "未授权访问-组已禁用"})
             elif path_info in accessPermission.get("page").keys():
                 return redirect("/error/403")
+
+        # 拥有全部权限时
+        if permission.get("all"):
+            return
 
         # 检查API权限
         if path_info in accessPermission.get("api").keys():

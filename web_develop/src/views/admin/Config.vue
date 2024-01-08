@@ -1,6 +1,4 @@
 <script>
-import LayoutsFooter from "@/layouts/default/Footer.vue";
-import LayoutsHeader from "@/layouts/default/Header.vue";
 import Settings from "@/layouts/admin/Settings.vue";
 
 export default {
@@ -18,4 +16,12 @@ export default {
 </template>
 
 <style scoped>
+.v-card-text {
+  display: flex;
+  min-height: 90%;
+  width: 95%;
+  margin: 0 auto;
+  border: rgba(0,0,0,0.2) solid 0.5px;
+  border-radius: 15px;
+}
 </style>

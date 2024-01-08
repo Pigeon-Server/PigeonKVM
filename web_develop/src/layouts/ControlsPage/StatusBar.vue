@@ -1,5 +1,4 @@
 <template>
-<!--  <ControlsPage_Settings :flag="Setting_Dialog"></ControlsPage_Settings>-->
   <div class="StatusBar">
     <div class="StatusBar-Content">
       <!--电源-->
@@ -23,15 +22,20 @@
     <v-dialog width="700px" v-model="Setting_Dialog" persistent>
     <v-card>
       <v-card-title>
-        机器设置
+        设置
       </v-card-title>
       <v-card-text>
         <v-tabs v-model="tab">
-          <v-tab value="graphics">图像设置</v-tab>
-          <v-tab value="gpio">GPIO设置</v-tab>
+          <v-tab value="Control_Settings">控制器设置</v-tab>
+          <v-tab value="Graphics_Settings">图像设置</v-tab>
         </v-tabs>
+
         <v-window v-model="tab" class="pa-3">
-          <v-window-item value="graphics">
+          <v-window-item value="Control_Settings">
+            <v-switch label="鼠标映射" color="primary"></v-switch>
+            <v-switch label="键盘映射" color="primary"></v-switch>
+          </v-window-item>
+          <v-window-item value="Graphics_Settings">
             <div class="text-caption">
             屏幕分辨率
           </div>
@@ -140,78 +144,13 @@
               <v-text-field type="number" v-model="configs.graphics.tonal"></v-text-field>
             </div>
           </div>
-
-          </v-window-item>
-          <v-window-item value="gpio">
-            <div>
-               <div class="text-caption">
-                轮询率（秒）
-              </div>
-              <v-text-field type="number" v-model="configs.gpio.pollingRate"></v-text-field>
-            </div>
-            <v-checkbox label="显示高级设置" v-model="configs.showAdvanced"></v-checkbox>
-            <div v-if="configs.showAdvanced">
-
-              <v-alert
-                type="error"
-                title="警告"
-                text="如果不知道这些配置项的含义，请勿随意更改这些设置"
-              ></v-alert>
-              <v-alert
-                type="warning"
-                title="提示"
-                text="这里的GPIO指的是wiringOP-Python中的wPi序号，请勿填写linux中的gpio子系统序号；具体详情请见OrangePi用户手册"
-              ></v-alert>
-
-              <div>
-               <div class="text-caption">
-                  电源LED-GPIO
-                </div>
-                <v-text-field type="number" v-model="configs.gpio.GPIO_IdSettings.Power_LED"></v-text-field>
-              </div>
-
-              <div>
-               <div class="text-caption">
-                  硬盘LED-GPIO
-                </div>
-                <v-text-field type="number" v-model="configs.gpio.GPIO_IdSettings.HDD_LED"></v-text-field>
-              </div>
-
-              <div>
-               <div class="text-caption">
-                  电源键-GPIO
-                </div>
-                <v-text-field type="number" v-model="configs.gpio.GPIO_IdSettings.Power_Btn"></v-text-field>
-              </div>
-
-              <div>
-               <div class="text-caption">
-                  重启键-GPIO
-                </div>
-                <v-text-field type="number" v-model="configs.gpio.GPIO_IdSettings.Restart_Btn"></v-text-field>
-              </div>
-
-              <div>
-               <div class="text-caption">
-                  使能U盘-GPIO
-                </div>
-                <v-text-field type="number" v-model="configs.gpio.GPIO_IdSettings.UsbDisk_EN"></v-text-field>
-              </div>
-
-              <div>
-               <div class="text-caption">
-                  切换U盘-GPIO
-                </div>
-                <v-text-field type="number" v-model="configs.gpio.GPIO_IdSettings.UsbDisk_Switch"></v-text-field>
-              </div>
-            </div>
           </v-window-item>
         </v-window>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="warning" @click="Setting_Dialog = false">复位</v-btn>
-        <v-btn color="success" @click="Setting_Dialog = false">保存并重启IPKVM Core</v-btn>
+        <v-btn color="success" @click="Setting_Dialog = false">保存</v-btn>
         <v-btn color="error" @click="Setting_Dialog = false">取消</v-btn>
       </v-card-actions>
     </v-card>
@@ -221,11 +160,12 @@
 
 <script>
 
-import ControlsPage_Settings from "@/components/ControlsPage/Settings.vue";
+// import ControlsPage_Settings from "@/components/ControlsPage/Settings.vue";
+import axios from "axios";
+
 import("@/styles/ControlPage/StatusBar.scss")
 export default {
   name: "StatusBar",
-  // components: {ControlsPage_Settings},
   data: ()=> {
     return {
       Setting_Dialog: false,
@@ -256,6 +196,9 @@ export default {
         }
       }
     }
+  },
+  methods: {
+
   }
 }
 </script>

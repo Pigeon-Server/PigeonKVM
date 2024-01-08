@@ -1,4 +1,6 @@
 <script>
+import axios from "axios";
+
 export default {
   name: "appbar_ControlsPage",
   data: () => {
@@ -12,6 +14,17 @@ export default {
     }
   },
   methods: {
+    // 显示API错误
+    showApiErrorMsg(message, status=null) {
+      this.$notify.create({
+        text: `API错误：${message} ${status ? '(status:'+status+')': ''}`,
+        level: 'error',
+        location: 'bottom right',
+        notifyOptions: {
+          "close-delay": 3000
+        }
+      })
+    },
     powerAction(action) {
       switch (action) {
         case "power": {
@@ -28,8 +41,9 @@ export default {
               persistent: true
             }
           }).then((anwser) => {
-            //Do something with the anwser corresponding to the key of the clicked button
-            console.log(anwser)
+            if (anwser === "yes") {
+              this.buttonClick("power")
+            }
           })
           break
         }
@@ -47,23 +61,57 @@ export default {
               persistent: true
             }
           }).then((anwser) => {
-            //Do something with the anwser corresponding to the key of the clicked button
-            console.log(anwser)
+            if (anwser === "yes") {
+              this.buttonClick("restart")
+            }
           })
           break
         }
       }
+    },
+    fullScreenControlPage() {
+      document.querySelector('.control').requestFullscreen()
+    },
+    fastInput() {
+      if (!this.inputString) {
+        return
+      }
+      axios.post("/control/api/fastInput", {input: this.inputString}).then(res=>{
+        const apiStatus = res.data.status
+        if (apiStatus === 1) {
+          this.tools_dialog = false
+        } else {
+          this.showApiErrorMsg(res.data.msg,apiStatus)
+        }
+      }).catch(err=>{
+        console.error(err)
+        this.showApiErrorMsg(err.message)
+      })
+    },
+    buttonClick(btn) {
+      axios.post("/control/api/ButtonClick", {button: btn}).then(res=>{
+        const apiStatus = res.data.status
+        if (apiStatus === 1) {
+          this.tools_dialog = false
+        } else {
+          this.showApiErrorMsg(res.data.msg,apiStatus)
+        }
+      }).catch(err=>{
+        console.error(err)
+        this.showApiErrorMsg(err.message)
+      })
     }
   }
 }
 </script>
 
 <template>
+  <v-btn icon="mdi:mdi-fullscreen" title="全屏控制页" @click="fullScreenControlPage()"></v-btn>
   <v-btn icon="mdi:mdi-dots-horizontal" title="快捷控制菜单" @click="tools_dialog = true"></v-btn>
 
   <v-dialog
     transition="dialog-bottom-transition"
-    width="auto"
+    width="55%"
     v-model="tools_dialog"
   >
     <v-card>
@@ -88,8 +136,8 @@ export default {
             </v-container>
           </v-window-item>
             <v-window-item value="inputString">
-            <v-textarea label="请输入要发送的文本(仅英文和半角字符)" variant="solo" clearable v-model="inputString"></v-textarea>
-            <v-btn block color="green-darken-2" prepend-icon="mdi:mdi-send">将文本发送到设备</v-btn>
+            <v-textarea label="请输入要发送的文本(仅支持英文和半角字符)" variant="solo" clearable v-model="inputString" auto-grow></v-textarea>
+            <v-btn block color="green-darken-2" prepend-icon="mdi:mdi-send" @click="fastInput()">将文本发送到设备</v-btn>
           </v-window-item>
           <v-window-item value="deviceConnect">
             <v-alert

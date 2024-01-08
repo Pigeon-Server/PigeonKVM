@@ -338,7 +338,6 @@ export default {
         permission[permissionKey] = this.editPermissionGroupDialog.selected.includes(permissionKey)
         console.log(permissionKey,this.editPermissionGroupDialog.selected.includes(permissionKey))
       }
-      console.log(permission)
       axios.post("/admin/api/setPermissionGroup", {
         id: this.editPermissionGroupDialog.gid,
         data: {

@@ -20,8 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 import app.apis.auth as auth
-import app.apis.Screen as Screen
 import app.apis.fileManager as fileManager
+import app.apis.control as control
 import app.apis.admin.users as users
 import app.apis.admin.permission as permission
 import app.apis.admin.auditAndLogger as auditAndLogger
@@ -32,7 +32,9 @@ urlpatterns = [
     path('auth/login', auth.AuthLogin),  # 登入（POST）
     path('auth/logout', auth.AuthOutLog),  # 登出（ALL）
     # 控制
-    # path('api/screen', Screen.getScreen),  # 获取屏幕（GET）
+    path('control/api/fastInput', control.fastInput),  # 快速键入(POST)
+    path('control/api/buttonClick', control.clickButton),  # 点击按钮(POST)
+    path('control/api/getLedStatus', control.getLedStatus),  # 获取LED状态(ALL)
     # 用户管理
     path('admin/api/getUserList', users.getUserList),  # 获取用户列表（ALL）
     path('admin/api/addUser', users.addUser),  # 新增用户（POST）
