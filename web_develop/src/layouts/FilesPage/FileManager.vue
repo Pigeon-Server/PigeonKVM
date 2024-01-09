@@ -1112,7 +1112,7 @@ export default {
         <v-card>
           <v-card-title>编辑器</v-card-title>
           <v-card-text id="edit">
-            <ace-edit :value="dialogs.edit.value" :language="dialogs.edit.language" @edit="dialogs.edit.change"></ace-edit>
+            <ace-edit :value="dialogs.edit.value" :language="dialogs.edit.language" @edit-event="(data)=>{this.dialogs.edit.change = data}"></ace-edit>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>

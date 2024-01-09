@@ -9,7 +9,7 @@ import 'ace-builds/src-min-noconflict/ext-language_tools'
 
 export default {
   name: "AceEdit",
-  emits: ["edit"],
+  emits: ["edit-event"],
   props: {
     theme: {
       type: String,
@@ -74,29 +74,26 @@ export default {
       scrollPastEnd: true, // 滚动位置
       highlightActiveLine: true, // 高亮当前行
     }
-    // ace.config.set('basePath', '/node_modules/ace-builds/src-noconflict');
-    // this.editor = ace.edit(this.display.value, options) // 创建编辑器对象
     this.editor = ace.edit(document.getElementById("aceEdit"), options)
     this.editor.setValue(this.value ? this.value : '') // 设置内容
     this.editor.on('change', () => { // 当文件改动时
-      // const value = this.editor.getValue()
-      // if (this.webSocket && this.fileId && this.websocket.readyState === WebSocket.OPEN) { // 通过ws提交
-      //   this.webSocket.send(JSON.stringify({
-      //     action: "fileChange",
-      //     data: {
-      //       fileId: this.fileId,
-      //       value: value
-      //     }
-      //   }))
-      // }
+      if (this.$props.webSocket) {
+        this.webSocket.send(JSON.stringify({
+          action: "saveFile",
+          data: {
+            value: this.editor.getValue()
+          }
+        }))
+      }
       console.log(this.editor.getValue())
-      this.$emit('edit', this.editor.getValue())
+      this.$emit('edit-event', this.editor.getValue())
     })
   },
   unmounted() {
     if (this.editor) {
       //实例销毁
       this.editor.destroy()
+      this.websocket = null
     }
   }
 }
