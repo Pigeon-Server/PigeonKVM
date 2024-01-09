@@ -15,33 +15,6 @@ export default {
     const UserStore = useUserStore()
     this.username = UserStore.userName
     this.group = UserStore.group
-    // axios.get("/userInfo/api/getInfo").then(res=>{
-    //   const apiStatus = res.data.status
-    //   const data = res.data.data
-    //   if (apiStatus === 1) {
-    //     this.username = data.userName
-    //     this.group = data.group
-    //   } else {
-    //     this.$notify.create({
-    //       text: `API错误：${res.data.msg}(status:${apiStatus})`,
-    //       level: 'error',
-    //       location: 'bottom right',
-    //       notifyOptions: {
-    //         "close-delay": 3000
-    //       }
-    //     })
-    //   }
-    //
-    // }).catch(err=>{
-    //   this.$notify.create({
-    //     text: `API错误：${err.message}`,
-    //     level: 'error',
-    //     location: 'bottom right',
-    //     notifyOptions: {
-    //       "close-delay": 3000
-    //     }
-    //   })
-    // })
   }
 }
 </script>

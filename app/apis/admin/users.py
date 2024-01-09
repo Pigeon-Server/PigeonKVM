@@ -233,7 +233,7 @@ def setUserInfo(req):
                         newPermission = Permission_groups.objects.filter(id=permission).first()
                         writeAudit(req.session.get("userID"), "Edit User Info(编辑用户): Update Permission Group(更新权限组)",
                                    "User Manager(权限管理)",
-                                   f"{Permission_groups.objects.filter(id=User.permission_id).first().name}-->{newPermission.name}")
+                                   f"{Permission_groups.objects.filter(id=User.permission_id).first().name if User.permission_id else 'None'}-->{newPermission.name}")
                         User.permission_id = newPermission
                     else:
                         return ResponseJson({"status": 0, "msg": "所选择的权限组不存在"})

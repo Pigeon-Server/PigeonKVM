@@ -1,6 +1,21 @@
 <script>
+import {useSettingsStore} from "@/store/settings";
 export default {
-  name: "Base_Settings"
+  name: "Base_Settings",
+  data: ()=>{
+    return {
+      settings: null
+    }
+  },
+  created() {
+    this.settings = useSettingsStore().settings
+  },
+  // watch: {
+  //   "settings.base.record"(val) {
+  //     console.log(val)
+  //     console.log(useSettingsStore().settings.base.record)
+  //   }
+  // }
 }
 </script>
 
@@ -10,19 +25,19 @@ export default {
     <div class="text-caption">
       采集卡设备ID/路径
     </div>
-    <v-text-field type="text" disabled></v-text-field>
+    <v-text-field type="text" v-model="settings.base.camera"></v-text-field>
   </div>
   <div>
     <div class="text-caption">
       HID串口设备
     </div>
-    <v-text-field type="text" disabled></v-text-field>
+    <v-text-field type="text" v-model="settings.base.HID_Serial"></v-text-field>
   </div>
   <div>
     <div class="text-caption">
       Session到期时间(分)
     </div>
-    <v-text-field type="text" disabled></v-text-field>
+    <v-text-field type="number" v-model="settings.base.sessionExpiry"></v-text-field>
   </div>
   <div>
     <div class="text-caption">
@@ -32,12 +47,12 @@ export default {
       <v-col
       cols="12"
       md="6">
-        <v-text-field type="text" disabled></v-text-field>
+        <v-text-field type="text" v-model="settings.base.USB_Device"></v-text-field>
       </v-col>
       <v-col
       cols="12"
       md="6">
-        <v-text-field type="text" disabled></v-text-field>
+        <v-text-field type="text" v-model="settings.base.USB_MountDirectory"></v-text-field>
       </v-col>
     </v-row>
   </div>
@@ -45,13 +60,13 @@ export default {
     <div class="text-caption">
       设备被控制时启动视频录制
     </div>
-    <v-switch></v-switch>
+    <v-checkbox v-model="settings.base.record"></v-checkbox>
   </div>
   <div>
     <div class="text-caption">
-      最大保留日志数
+      最大保留录制数
     </div>
-    <v-text-field type="text" disabled></v-text-field>
+    <v-text-field type="number" v-model="settings.record.maxFile"></v-text-field>
   </div>
   <v-divider></v-divider>
   <p class="text-h5 setting_subtitle">日志设置</p>
@@ -65,7 +80,7 @@ export default {
     <div class="text-caption">
       日志保留时长(天)
     </div>
-    <v-text-field type="text" disabled></v-text-field>
+    <v-text-field type="number"></v-text-field>
   </div>
   <v-divider></v-divider>
   <p class="text-h5 setting_subtitle">审计设置</p>
@@ -73,7 +88,7 @@ export default {
     <div class="text-caption">
       审计日志保留时长(天)
     </div>
-    <v-text-field type="text" disabled></v-text-field>
+    <v-text-field type="number"></v-text-field>
   </div>
 </template>
 

@@ -3,13 +3,40 @@
 import base_settings from "@/layouts/admin/Settings/Base_Settings.vue";
 import display_settings from "@/layouts/admin/Settings/Display_Settings.vue";
 import gpio_settings from "@/layouts/admin/Settings/GPIO_Settings.vue";
+import {useSettingsStore} from "@/store/settings";
 
 export default {
   name: "Settings",
   components: {gpio_settings, display_settings, base_settings},
   data: ()=>{
     return {
-      openWindow: null
+      openWindow: null,
+    }
+  },
+  created() {
+    useSettingsStore().getSettings()
+  },
+  methods: {
+    save() {
+      useSettingsStore().saveEditSettings().then(()=>{
+        this.$notify.create({
+          text: '配置保存成功',
+          level: 'success',
+          location: 'bottom right',
+          notifyOptions: {
+            "close-delay": 3000
+          }
+        })
+      }).catch((err)=>{
+        this.$notify.create({
+          text: `保存配置失败：${err.message}`,
+          level: 'error',
+          location: 'bottom right',
+          notifyOptions: {
+            "close-delay": 3000
+          }
+        })
+      })
     }
   }
 }
@@ -29,8 +56,8 @@ export default {
       </v-window-item>
     </v-window>
     <div class="actionButton">
-      <v-btn>取消</v-btn>
-      <v-btn>保存</v-btn>
+<!--      <v-btn>取消</v-btn>-->
+      <v-btn @click="save()" color="green">保存</v-btn>
     </div>
   </div>
   <v-list>

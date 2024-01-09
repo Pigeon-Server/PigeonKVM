@@ -25,6 +25,7 @@ import app.apis.control as control
 import app.apis.admin.users as users
 import app.apis.admin.permission as permission
 import app.apis.admin.auditAndLogger as auditAndLogger
+import app.apis.admin.settings as setting
 import app.apis.userInfo as userInfo
 
 urlpatterns = [
@@ -54,6 +55,9 @@ urlpatterns = [
     path('admin/api/auditAndLogger/accessLog', auditAndLogger.getAccessLog),  # 获取访问日志（POST）
     path('admin/api/auditAndLogger/fileChangeLog', auditAndLogger.getFileChangeLog),  # 获取文件日志（POST）
     path('admin/api/auditAndLogger/systemLog', auditAndLogger.getSystemLog),  # 获取系统日志（POST）
+    # 系统设置
+    path('admin/api/settings/getSettings', setting.getSetting),  # 获取设置信息
+    path('admin/api/settings/editSettings', setting.editSetting),  # 编辑设置信息
     # 个人信息编辑
     path("userInfo/api/getInfo", userInfo.getUserInfo),  # 获取个人信息（ALL）
     path("userInfo/api/editInfo", userInfo.setUserInfo),  # 修改个人信息（POST）
