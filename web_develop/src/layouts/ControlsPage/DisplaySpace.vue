@@ -389,6 +389,10 @@ export default {
     window.document.body.onmouseover =  function (event){
       that.mouseOnConsole = (event.target?.id === displayImage.id)
     }
+  },
+  unmounted() {
+    this.ws.close()
+    this.ws = null
   }
 }
 </script>

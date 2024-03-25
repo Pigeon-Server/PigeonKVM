@@ -1,4 +1,4 @@
-# [IPKVM Core](https://github.com/Pigeon-Server/IPKVM-Core)
+# [PigeonKVM](https://github.com/Pigeon-Server/PigeonKVM)
 IPKVM Core是一个由Python+django编写的KVM程序，拥有更强大的审计与权限管理功能 
 
 **该项目当前处于alpha阶段，功能尚未完善，可能会有严重的性能问题**
@@ -9,8 +9,8 @@ IPKVM Core是一个由Python+django编写的KVM程序，拥有更强大的审计
 
 ```shell
     # 克隆源码到本地
-    git clone https://github.com/Pigeon-Server/IPKVM-Core.git
-    cd IPKVM-Core
+    git clone https://github.com/Pigeon-Server/PigeonKVM.git
+    cd PigeonKVM
 ```
 
 ### 编译用户界面

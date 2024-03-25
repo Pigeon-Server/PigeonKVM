@@ -1,7 +1,5 @@
 <template>
-
-<MachineList />
-
+  <MachineList />
 </template>
 
 <script setup>

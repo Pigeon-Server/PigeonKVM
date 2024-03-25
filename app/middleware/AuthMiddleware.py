@@ -7,6 +7,8 @@ class AuthMiddleware(MiddlewareMixin):
     """
     def process_request(self, request):
         if request.path_info in ["/login", "/auth/login"]:
+            if request.session.get("user") and request.session.get("userID"):
+                return redirect("/")
             return
         if request.session.get("user") and request.session.get("userID"):
             return

@@ -23,11 +23,9 @@ export default {
       displayMenu: false,
     }
   },
-  // created() {
-  //   this.UserPermissions = useUserStore().permissions
-  // },
   mounted() {
     this.displayMenu = this.display
+    console.log(this.$route.name)
   },
   watch: { // 监听到数据然后赋值
       display(val){    //message即为父组件的值，val参数为值
@@ -37,61 +35,70 @@ export default {
   },
   methods: {
     logout() {
-      axios.get("/auth/logout").then(res=>{
-        let data = res.data
-        switch (data.status) {
-          case 1:
-            this.$notify.create({
-              text: data.msg,
-              level: 'success',
-              location: 'bottom right',
-              notifyOptions: {
-                "close-delay": 3000
-              }
-            })
-            location.href = "/login"
-            break;
-          case 0:
-            this.$notify.create({
-              text: data.msg,
-              level: 'error',
-              location: 'bottom right',
-              notifyOptions: {
-                "close-delay": 3000
-              }
-            })
-            break
-        }
-      }).catch(err=>{
-        console.error(err)
-        this.$notify.create({
-          text: err.message,
-          level: 'error',
-          location: 'bottom right',
-          notifyOptions: {
-            "close-delay": 3000
+        const that = this
+        axios.get("/auth/logout").then(res=>{
+          let data = res.data
+          switch (data.status) {
+            case 1:
+              this.$notify.create({
+                text: data.msg,
+                level: 'success',
+                location: 'bottom right',
+                notifyOptions: {
+                  "close-delay": 3000
+                }
+              })
+              setTimeout(()=>{
+                useUserStore().$reset()
+                that.$router.push({name: "login"})
+              },500)
+              break;
+            case 0:
+              this.$notify.create({
+                text: data.msg,
+                level: 'error',
+                location: 'bottom right',
+                notifyOptions: {
+                  "close-delay": 3000
+                }
+              })
+              break
           }
+        }).catch(err=>{
+          console.error(err)
+          this.$notify.create({
+            text: err.message,
+            level: 'error',
+            location: 'bottom right',
+            notifyOptions: {
+              "close-delay": 3000
+            }
+          })
         })
-      })
     }
   }
 }
 </script>
 
 <template>
-  <v-navigation-drawer :width="290" v-model="displayMenu" disable-resize-watcher>
+  <v-navigation-drawer :width="290" v-model="displayMenu" disable-resize-watcher v-if="this.$route.name !== 'login'">
     <user-info-card></user-info-card>
     <v-divider></v-divider>
-<!--     <v-list-item href="/" title="机器列表" prepend-icon="mdi:mdi-view-dashboard"></v-list-item>-->
-    <v-list-item href="/" title="控制" prepend-icon="mdi:mdi-monitor" v-if="UserPermissions.all || UserPermissions.viewDevice"></v-list-item>
-    <v-list-item href="/files" title="USB文件管理" prepend-icon="mdi:mdi-file-multiple-outline" v-if="UserPermissions.all || UserPermissions.controllingDevice"></v-list-item>
+    <v-list-item subtitle="操作"></v-list-item>
+    <v-list-item :to="{name: 'home'}" title="机器列表" prepend-icon="mdi:mdi-view-dashboard"></v-list-item>
+    <v-list-item :to="{name: 'control'}" title="控制" prepend-icon="mdi:mdi-monitor" v-if="UserPermissions.all || UserPermissions.viewDevice"></v-list-item>
+    <v-list-item :to="{name: 'files'}" title="USB文件管理" prepend-icon="mdi:mdi-folder-outline" v-if="UserPermissions.all || UserPermissions.controllingDevice"></v-list-item>
     <v-divider></v-divider>
-    <v-list-item href="/admin/users" title="用户管理" prepend-icon="mdi:mdi-account-details-outline" v-if="UserPermissions.all || UserPermissions.manageUsers"></v-list-item>
-    <v-list-item href="/admin/permission" title="权限管理" prepend-icon="mdi:mdi-account-cog-outline" v-if="UserPermissions.all || UserPermissions.managePermissionGroups"></v-list-item>
-    <v-list-item href="/admin/audit" title="审计与日志" prepend-icon="mdi:mdi-chart-timeline" v-if="UserPermissions.all || UserPermissions.viewAudit"></v-list-item>
-    <v-list-item href="/admin/settings" title="设置" prepend-icon="mdi:mdi-cogs" v-if="UserPermissions.all || UserPermissions.changeSettings"></v-list-item>
+    <v-list-item subtitle="管理"></v-list-item>
+    <v-list-item title="服务器状态" prepend-icon="mdi:mdi-gauge"></v-list-item>
+    <v-list-item :to="{name: 'userManagement'}" title="用户管理" prepend-icon="mdi:mdi-account-details-outline" v-if="UserPermissions.all || UserPermissions.manageUsers"></v-list-item>
+    <v-list-item :to="{name: 'permissionManagement'}" title="权限管理" prepend-icon="mdi:mdi-account-cog-outline" v-if="UserPermissions.all || UserPermissions.managePermissionGroups"></v-list-item>
+    <v-list-item :to="{name: 'audit'}" title="审计与日志" prepend-icon="mdi:mdi-chart-timeline" v-if="UserPermissions.all || UserPermissions.viewAudit"></v-list-item>
+    <v-list-item :to="{name: 'settings'}" title="设置" prepend-icon="mdi:mdi-cog-outline" v-if="UserPermissions.all || UserPermissions.changeSettings"></v-list-item>
     <v-divider></v-divider>
-    <v-list-item href="/about" title="关于IPKVM Core" prepend-icon="mdi:mdi-copyright"></v-list-item>
+    <v-list-item subtitle="浏览"></v-list-item>
+    <v-list-item href="https://docs.pigeon-server.cn/#/" title="文档" prepend-icon="mdi:mdi-book-open-variant"></v-list-item>
+    <v-list-item :to="{name: 'about'}" title="关于PigeonKVM" prepend-icon="mdi:mdi-copyright"></v-list-item>
     <template v-slot:append>
       <div class="pa-2">
         <v-btn block prepend-icon="mdi:mdi-logout" @click="logout()">

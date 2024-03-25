@@ -1,7 +1,6 @@
 <script>
 import AceEdit from "@/components/AceEdit.vue";
 import SparkMD5 from "spark-md5"
-// import query from "queue"
 
 import('@/styles/FilesPage/FileManager.scss')
 export default {
@@ -56,6 +55,7 @@ export default {
       currentPath: [],
       fileList: [],
       pathBar: [],
+      fileSelect: [],
       requestDownloadFile: [],
       clipboard: {
         selectedFile: null,
@@ -887,6 +887,10 @@ export default {
         console.log(event.target.innerHTML)
       }
     })
+  },
+  unmounted() {
+    this.websocket.close()
+    this.websocket = null
   }
 }
 </script>
@@ -908,20 +912,14 @@ export default {
         <div class="left">
           <v-btn size="x-small" id="refresh" title="刷新" icon="mdi:mdi-refresh">
             <v-icon icon="mdi:mdi-refresh"></v-icon>
-<!--            <template v-slot:prepend>-->
-<!--              <v-icon icon="mdi:mdi-refresh"></v-icon>-->
-<!--            </template>-->
-<!--            刷新页面-->
           </v-btn>
           <v-btn size="small" id="upload" title="上传文件">
-<!--            <v-icon icon="mdi:mdi-upload"></v-icon>-->
             <template v-slot:prepend>
               <v-icon icon="mdi:mdi-upload"></v-icon>
             </template>
             上传文件
           </v-btn>
           <v-btn size="small" id="back" title="返回上级">
-<!--            <v-icon icon="mdi:mdi-chevron-up"></v-icon>-->
             <template v-slot:prepend>
               <v-icon icon="mdi:mdi-chevron-up"></v-icon>
             </template>
@@ -980,11 +978,11 @@ export default {
         </div>
       </div>
   </div>
-    <v-table fixed-header hover>
+    <v-table fixed-header fixed-footer hover density="compact">
     <thead>
       <tr>
         <th class="check">
-          <v-checkbox id="allCheck" center-affix></v-checkbox>
+          <input type="checkbox" id="allCheck">
         </th>
         <th class="text-left">名称</th>
         <th class="text-left">类型</th>
@@ -1001,9 +999,11 @@ export default {
         :data-id="item.fileId"
         :data-filename="item.fileName"
       >
-        <td class="check"><v-checkbox></v-checkbox></td>
-        <td v-if="item.fileType !== '文件夹'" class="file">{{ item.fileName }}</td>
-        <td v-if="item.fileType === '文件夹'" class="dir" @click="openDir(item.fileName)">{{ item.fileName }}</td>
+        <td class="check">
+          <input type="checkbox" name="fileSelect" :value="item.fileName" :model="fileSelect">
+        </td>
+        <td class="filename" v-if="item.fileType !== '文件夹'"><v-icon icon="mdi:mdi-file-outline" size="small"></v-icon>{{ item.fileName }}</td>
+        <td class="filename" v-if="item.fileType === '文件夹'" @click="openDir(item.fileName)"><v-icon icon="mdi:mdi-folder-outline" size="small"></v-icon>{{ item.fileName }}</td>
         <td>{{ item.fileType }}</td>
         <td>{{ item.fileSize }}</td>
         <td>{{item.uploadTime}}({{ item.fileUploader}})</td>

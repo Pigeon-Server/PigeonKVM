@@ -26,15 +26,19 @@
     }
 
   }
-  tbody tr .action {
-    //display: flex;
-    //flex-direction: row;
-    //flex-wrap: nowrap;
-    .v-btn * {
-      pointer-events:none;
-    }
-    .v-btn:not(:last-child) {
-      margin-right: 5px;
+  tbody {
+    tr {
+      white-space: nowrap;
+      .action {
+        //flex-direction: row;
+        //flex-wrap: nowrap;
+        .v-btn * {
+          pointer-events:none;
+        }
+        .v-btn:not(:last-child) {
+          margin-right: 5px;
+        }
+      }
     }
   }
 }

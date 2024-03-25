@@ -300,13 +300,13 @@ class ch3929:
 
     __sendSerialCommandQueue = None
 
-    def __init__(self, serial_post) -> None:
-        self.__serial = serial.Serial(serial_post,9600)
+    def __init__(self, serial) -> None:
+        self.__serial = serial
         if not self.__serial.isOpen():
-            Log.exception("串口打开失败")
-            raise "串口打开失败"
+            Log.exception("串口未启动")
+            raise RuntimeError("Serial is not open")
         self.__sendSerialCommandQueue = Queue()
-        Thread(target=self.__runQueueCommand,args=(),name="runQueueCommand").start()
+        Thread(target=self.__runQueueCommand, args=(), name="runQueueCommand").start()
 
     def __sendCMD(self,CMD_CODE:str,DATA_LIST:list = []):
         """发送串口命令
@@ -333,7 +333,7 @@ class ch3929:
         DATA.append(f"0x{int(bin(SUM)[-8:],2):02x}")
         Log.debug("Send Serial Command:"+str(DATA))
         for i in range(0,len(DATA)):
-            DATA[i] = int(DATA[i],16)
+            DATA[i] = int(DATA[i], 16)
 
         self.__serial.write(DATA)
 

@@ -15,6 +15,7 @@ class PermissionsMiddleware(MiddlewareMixin):
         Ignore = [
             "/login",
             "/auth/login",
+            "/auth/logout"
             "/error/403"
         ]
 
@@ -54,8 +55,10 @@ class PermissionsMiddleware(MiddlewareMixin):
 
         # 忽略权限过滤器
         if path_info in Ignore:
+            # print(path_info)
             return
 
+        # print(userId)
         permission = Permission_groups.objects.filter(id=Users.objects.filter(id=userId).first().permission_id).values()[0]
 
         """
