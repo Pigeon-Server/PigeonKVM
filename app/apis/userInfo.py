@@ -15,6 +15,11 @@ from app.util.DataBaseTools import writeAudit, writeAccessLog, writeFileChangeLo
 
 @Log.catch
 def setPassword(req):
+    """
+    设置密码
+    :param req:
+    :return:
+    """
     if req.method == 'POST':
         try:
             req_json = RequestLoadJson(req)
@@ -46,6 +51,11 @@ def setPassword(req):
 
 
 def getUserInfo(req):
+    """
+    获取用户信息
+    :param req:
+    :return:
+    """
     userId = req.session.get("userID")
     if userId:
         User = Users.objects.filter(id=userId).first()
@@ -73,6 +83,11 @@ def getUserInfo(req):
         return ResponseJson({"status": -1, "msg": "未登录"})
 
 def setUserInfo(req):
+    """
+    设置用户信息
+    :param req:
+    :return:
+    """
     if req.method == 'POST':
         try:
             req_json = RequestLoadJson(req)
@@ -123,6 +138,11 @@ def setUserInfo(req):
 
 # 头像上传
 def uploadAvatar(req):
+    """
+    头像上传
+    :param req:
+    :return: JSON
+    """
     if req.method == 'POST':
         try:
             req_json = RequestLoadJson(req)
@@ -181,8 +201,12 @@ def uploadAvatar(req):
     else:
         return ResponseJson({"status": -1, "msg": "请求方式不正确"})
 
-# 获取用户头像
 def getAvatar(req):
+    """
+    获取用户头像
+    :param req:
+    :return: Image
+    """
     userId = req.session.get("userID")
 
     if (not userId):

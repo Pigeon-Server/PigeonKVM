@@ -22,12 +22,7 @@ export const useSettingsStore = defineStore('Settings', {
     },
     saveEditSettings() {
       return new Promise((resolve, reject) => {
-        axios.post('/admin/api/settings/editSettings', this.settings).then(res=>{
-          resolve(res.data)
-        }).catch(err=>{
-          console.error(err)
-          reject(err)
-        })
+
       })
     }
   },

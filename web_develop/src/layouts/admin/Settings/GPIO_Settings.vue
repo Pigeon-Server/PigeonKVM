@@ -5,11 +5,8 @@ export default {
   name: "GPIO_Settings",
   data: ()=>{
     return {
-      settings: null
+      settings_GPIO: null
     }
-  },
-  created() {
-    this.settings = useSettingsStore().settings
   }
 }
 </script>
@@ -24,7 +21,7 @@ export default {
     </div>
     <v-select
       :items="['Linux GPIO Subsystem','OrangePi GPIO']"
-      v-model="settings.gpio.mode"
+      v-model="settings_GPIO.mode"
     ></v-select>
   </div>
 
@@ -33,13 +30,13 @@ export default {
     <div class="text-caption">
       电源
     </div>
-    <v-text-field type="number" v-model="settings.gpio.Power_Btn"></v-text-field>
+    <v-text-field type="number" v-model="settings_GPIO.Power_Btn"></v-text-field>
   </div>
   <div>
     <div class="text-caption">
       重启
     </div>
-    <v-text-field type="number" v-model="settings.gpio.Restart_Btn"></v-text-field>
+    <v-text-field type="number" v-model="settings_GPIO.Restart_Btn"></v-text-field>
   </div>
   <v-divider></v-divider>
   <p class="text-h5 setting_subtitle">LED</p>
@@ -47,13 +44,13 @@ export default {
     <div class="text-caption">
       电源
     </div>
-    <v-text-field type="number" v-model="settings.gpio.Power_LED"></v-text-field>
+    <v-text-field type="number" v-model="settings_GPIO.Power_LED"></v-text-field>
   </div>
   <div>
     <div class="text-caption">
       硬盘
     </div>
-    <v-text-field type="number" v-model="settings.gpio.Restart_Btn"></v-text-field>
+    <v-text-field type="number" v-model="settings_GPIO.Restart_Btn"></v-text-field>
   </div>
   <v-divider></v-divider>
   <p class="text-h5 setting_subtitle">其他设备</p>
@@ -61,13 +58,13 @@ export default {
     <div class="text-caption">
       USB使能
     </div>
-    <v-text-field type="number" v-model="settings.gpio.UsbDisk_EN"></v-text-field>
+    <v-text-field type="number" v-model="settings_GPIO.UsbDisk_EN"></v-text-field>
   </div>
   <div>
     <div class="text-caption">
       USB切换
     </div>
-    <v-text-field type="number" v-model="settings.gpio.UsbDisk_Switch"></v-text-field>
+    <v-text-field type="number" v-model="settings_GPIO.UsbDisk_Switch"></v-text-field>
   </div>
 </template>
 

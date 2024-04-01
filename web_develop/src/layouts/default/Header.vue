@@ -4,7 +4,7 @@
             <v-icon icon="mdi-menu" />
         </v-app-bar-nav-icon>
 
-        <v-app-bar-title>IPKVM Core</v-app-bar-title>
+        <v-app-bar-title>PigeonKVM</v-app-bar-title>
         <template v-slot:append>
           <router-view name="appBarBtn"></router-view>
         </template>

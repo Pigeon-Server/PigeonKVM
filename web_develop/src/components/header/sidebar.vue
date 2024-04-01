@@ -91,7 +91,7 @@ export default {
     <v-list-item href="/admin/audit" title="审计与日志" prepend-icon="mdi:mdi-chart-timeline" v-if="UserPermissions.all || UserPermissions.viewAudit"></v-list-item>
     <v-list-item href="/admin/settings" title="设置" prepend-icon="mdi:mdi-cogs" v-if="UserPermissions.all || UserPermissions.changeSettings"></v-list-item>
     <v-divider></v-divider>
-    <v-list-item href="/about" title="关于IPKVM Core" prepend-icon="mdi:mdi-copyright"></v-list-item>
+    <v-list-item href="/about" title="关于PigeonKVM" prepend-icon="mdi:mdi-copyright"></v-list-item>
     <template v-slot:append>
       <div class="pa-2">
         <v-btn block prepend-icon="mdi:mdi-logout" @click="logout()">

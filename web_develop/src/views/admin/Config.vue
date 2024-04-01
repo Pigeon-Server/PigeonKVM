@@ -8,7 +8,7 @@ export default {
 </script>
 
 <template>
-  <v-card title="IPKVM CORE 设置" class="pageMain-card">
+  <v-card title="PigeonKVM 设置" class="pageMain-card">
     <v-card-text>
       <settings></settings>
     </v-card-text>
