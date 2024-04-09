@@ -1,5 +1,6 @@
 <script>
 import axios from "axios";
+import message from "@/scripts/utils/message.js"
 
 export default {
   name: "accessLog_table",
@@ -11,17 +12,6 @@ export default {
     }
   },
   methods: {
-    // 显示APi错误
-    showApiErrorMsg(message, status=null) {
-      this.$notify.create({
-        text: `API错误：${message} ${status ? '(status:'+status+')': ''}`,
-        level: 'error',
-        location: 'bottom right',
-        notifyOptions: {
-          "close-delay": 3000
-        }
-      })
-    },
     // 获取用户列表
     getTable(page=1, pageSize=20) {
       axios.post("/admin/api/auditAndLogger/accessLog",{
@@ -46,11 +36,11 @@ export default {
               })
             }
           } else {
-            this.showApiErrorMsg(res.data.msg,apiStatus)
+            message.showApiErrorMsg(this, res.data.msg, apiStatus)
           }
       }).catch(err=>{
         console.error(err)
-        this.showApiErrorMsg(err.message)
+        message.showApiErrorMsg(this, err.message)
       })
     },
   },

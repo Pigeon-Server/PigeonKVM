@@ -1,48 +1,56 @@
 <script>
+import group_list from "@/components/tables/permissionGroup/groupList"
 import axios from "axios";
+import NewGroup from "@/components/dialogs/permissionGroup/newGroup";
 
 export default {
-  name: "GroupList",
+  name: "PermissionGroup",
+  components: {NewGroup, group_list},
   data: () => {
     return {
       currentPage: 1,
       maxPage: null,
       search: "",
       permissionGroups: [],
-      newPermissionGroupDialog: {
-        flag: false,
-        permissionList: {},
-        newGroupName: null,
-        newGroupStatus: true,
-        selected: []
-      },
-      editPermissionGroupDialog: {
-        flag: false,
-        gid: null,
-        name: null,
-        status: true,
-        permissionList: {},
-        selected: []
-      },
-      updateGroupStatusDialog: {
-        flag: false,
-        gid: null,
-        value: null
-      },
-      inputDialog: {
-        flag: false,
-        input: null,
-        uid: null,
-        title: null,
-        label: null,
-        type: null,
-        callback: null
-      },
+      flag: {
+        newGroup: false
+      }
+      // newPermissionGroupDialog: {
+      //   flag: false,
+      //   permissionList: {},
+      //   newGroupName: null,
+      //   newGroupStatus: true,
+      //   selected: []
+      // },
+      // editPermissionGroupDialog: {
+      //   flag: false,
+      //   gid: null,
+      //   name: null,
+      //   status: true,
+      //   permissionList: {},
+      //   selected: []
+      // },
+      // updateGroupStatusDialog: {
+      //   flag: false,
+      //   gid: null,
+      //   value: null
+      // },
+      // inputDialog: {
+      //   flag: false,
+      //   input: null,
+      //   uid: null,
+      //   title: null,
+      //   label: null,
+      //   type: null,
+      //   callback: null
+      // },
     }
   },
   methods: {
-    // 显示APi错误
     showApiErrorMsg(message, status = null) {
+      /**
+       * 显示API错误信息
+       */
       this.$notify.create({
         text: `API错误：${message} ${status ? '(status:' + status + ')' : ''}`,
         level: 'error',
@@ -54,6 +62,9 @@ export default {
     },
     // 获取用户列表
     getPermissionGroupList(search = "", page = 1, pageSize = 20) {
+      /**
+       * 获取用户列表
+       */
       axios.post("/admin/api/getPermissionGroups", {
         page: page,
         pageSize: pageSize,
@@ -101,6 +112,9 @@ export default {
     },
     // 获取权限列表
     getPermissionList() {
+      /**
+       * 获取权限列表
+       */
       return axios.get("/admin/api/getPermissionList").catch(err => {
         console.error(err)
         this.showApiErrorMsg(err.message)
@@ -108,6 +122,9 @@ export default {
     },
     // 获取权限组信息
     getPermissionGroupInfo(groupId) {
+      /**
+       * 获取权限组数据
+       */
       return axios.post("/admin/api/getPermissionGroupInfo", {id: groupId}).catch(err => {
         console.error(err)
         this.showApiErrorMsg(err.message)
@@ -115,8 +132,14 @@ export default {
     },
     // 动作
     action(action, groupId = null) {
+      /**
+       * 操作
+       */
       switch (action) {
         case "newPermissionGroup":
+          /**
+           * 新建组
+           */
           this.getPermissionList().then(res => {
             const apiStatus = res.data.status
             if (apiStatus === 1) {
@@ -129,6 +152,9 @@ export default {
           })
           break
         case "rename":
+          /**
+           * 重命名
+           */
           this.getPermissionGroupInfo(groupId).then(res => {
             const apiStatus = res.data.status
             if (apiStatus === 1) {
@@ -139,6 +165,9 @@ export default {
           })
           break
         case "update_status":
+          /**
+           * 更新状态
+           */
           this.getPermissionGroupInfo(groupId).then(res => {
             const apiStatus = res.data.status
             if (apiStatus === 1) {
@@ -151,6 +180,9 @@ export default {
           })
           break
         case "edit":
+          /**
+           * 编辑权限组
+           */
           this.getPermissionGroupInfo(groupId).then(res => {
             const apiStatus = res.data.status
             if (apiStatus === 1) {
@@ -181,6 +213,9 @@ export default {
           })
           break
         case "del":
+          /**
+           * 删除权限组
+           */
           this.$dialog.confirm("操作确认", "确定要删除这个组吗", 'warning', '否', '是')
             .then((anwser) => {
               if (anwser) {
@@ -199,62 +234,9 @@ export default {
           break
       }
     },
-    // 新建权限组
-    newPermissionGroup() {
-      if (this.newPermissionGroupDialog.newGroupName.length < 3 && this.newPermissionGroupDialog.newGroupName.length > 20) {
-        this.$notify.create({
-          text: `权限组名长度应在3-20个字符`,
-          level: 'error',
-          location: 'bottom right',
-          notifyOptions: {
-            "close-delay": 3000
-          }
-        })
-        return
-      }
-      if (this.newPermissionGroupDialog.selected === []) {
-        this.$notify.create({
-          text: `你好像啥权限都没选择呢~`,
-          level: 'error',
-          location: 'bottom right',
-          notifyOptions: {
-            "close-delay": 3000
-          }
-        })
-        return
-      }
-      let permission = {}
-      for (const permissionKey in this.newPermissionGroupDialog.permissionList) {
-        permission[permissionKey] = this.newPermissionGroupDialog.selected.includes(permissionKey)
-      }
-      console.log(permission)
-      axios.post("/admin/api/addPermissionGroup", {
-        name: this.newPermissionGroupDialog.newGroupName,
-        disable: !this.newPermissionGroupDialog.newGroupStatus,
-        permissions: permission
-      }).then(res => {
-        const apiStatus = res.data.status
-        if (apiStatus === 1) {
-          this.restore_init("newPermissionGroupDialog")
-          this.getPermissionGroupList()
-        } else {
-          this.showApiErrorMsg(res.data.msg, apiStatus)
-        }
-      }).catch(err => {
-        console.error(err)
-        this.showApiErrorMsg(err.message)
-      })
-    },
     // 恢复初始值
     restore_init(dialogName) {
       switch (dialogName) {
-        case "newPermissionGroupDialog":
-          this.newPermissionGroupDialog.flag = false
-          this.newPermissionGroupDialog.permissionList = []
-          this.newPermissionGroupDialog.selected = []
-          this.newPermissionGroupDialog.newGroupName = ""
-          this.newPermissionGroupDialog.newGroupStatus = true
-          break
         case "updateGroupStatusDialog":
           this.updateGroupStatusDialog.flag = false
           this.updateGroupStatusDialog.value = null
@@ -364,9 +346,10 @@ export default {
   },
   watch: {
     currentPage(val) {
-      this.getPermissionGroupList(this.search, val)
+      this.getPermissionGroupList(this.search ,val)
     },
-    search(val) {
+    "search"(val) {
+      console.log(val)
       this.getPermissionGroupList(val)
       this.currentPage = 1
     }
@@ -376,54 +359,28 @@ export default {
 
 <template>
   <div class="toolsBar">
-    <v-btn id="addUser" color="success" @click="action('newPermissionGroup')">新增权限组</v-btn>
-    <v-text-field id="searchUser" class="search" density="compact" label="搜索" variant="solo-filled" single-line
-                  hide-details v-model="search"></v-text-field>
-  </div>
-  <v-table>
-    <thead>
-    <tr>
-      <th class="text-left">
-        ID
-      </th>
-      <th class="text-left">
-        权限组名
-      </th>
-      <th class="text-left">
-        创建者
-      </th>
-      <th class="text-left">
-        创建时间
-      </th>
-      <th class="text-left">
-        状态
-      </th>
-      <th class="text-left">
-        操作
-      </th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr
-      v-for="item in permissionGroups"
-      :key="item.id"
+    <v-btn
+      id="addUser"
+      color="success"
+      @click="flag.newGroup = true"
     >
-      <td>{{ item.id }}</td>
-      <td>{{ item.name }}
-        <v-icon icon="mdi:mdi-square-edit-outline" size="x-small" @click="action('rename', item.id)"></v-icon>
-      </td>
-      <td>{{ item.creator ? item.creator : "未知" }}</td>
-      <td>{{ item.createdAt ? item.createdAt : "未知" }}</td>
-      <td>{{ item.disable ? "已禁用" : "已启用" }}
-        <v-icon icon="mdi:mdi-square-edit-outline" size="x-small" @click="action('update_status', item.id)"></v-icon>
-      </td>
-      <td>
-        <v-btn size="small" @click="action('edit', item.id)">编辑</v-btn>
-        <v-btn color="error" size="small" @click="action('del', item.id)">删除</v-btn>
-      </td>
-    </tr>
-    </tbody>
-  </v-table>
+      新增权限组
+    </v-btn>
+    <v-text-field
+      id="searchUser"
+      class="search"
+      density="compact"
+      label="搜索"
+      variant="solo-filled"
+      single-line
+      hide-details
+      v-model="search">
+    </v-text-field>
+  </div>
+  <group_list @action="action" @updateData="getPermissionGroupList(search, currentPage)" :permission-group-list="permissionGroups"/>
+  <div class="dialogs">
+    <new-group :open-window="flag.newGroup" @success="getPermissionGroupList();flag.newGroup = false" @exit="flag.newGroup = false"/>
+  </div>
   <v-pagination
     v-model="currentPage"
     v-if="!maxPage <= 1"
@@ -433,159 +390,6 @@ export default {
     next-icon="mdi:mdi-menu-right"
     rounded="circle"
   ></v-pagination>
-  <div class="dialogs">
-    <!--    通用输入框-->
-    <v-dialog
-      id="inputDialog"
-      v-model="inputDialog.flag"
-      activator="parent"
-      min-width="400px"
-      width="auto"
-      persistent
-    >
-      <v-card>
-        <v-card-title>{{ inputDialog.title }}</v-card-title>
-        <v-card-text>
-          <v-text-field v-model="inputDialog.input" :label="inputDialog.label" :type="inputDialog.type"></v-text-field>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="error" @click="inputDialog.flag = false;inputDialog.input = null">取消</v-btn>
-          <v-btn color="success"
-                 @click="inputDialog.callback(inputDialog.uid, inputDialog.input);inputDialog.flag = false;inputDialog.input = null">
-            确定
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <!--    新建权限组-->
-    <v-dialog
-      id="inputDialog"
-      v-model="newPermissionGroupDialog.flag"
-      activator="parent"
-      min-width="400px"
-      width="auto"
-      persistent
-    >
-      <v-card>
-        <v-card-title>新建权限组</v-card-title>
-        <v-card-text>
-          <v-text-field type="text" label="请输入要创建的权限组名"
-                        v-model="newPermissionGroupDialog.newGroupName"></v-text-field>
-          <v-switch label="是否启用" v-model="newPermissionGroupDialog.newGroupStatus" color="primary"></v-switch>
-          <v-card class="pa-1">
-            <v-card-title>选择该组可使用的权限</v-card-title>
-            <v-card-text>
-              <v-table density="compact">
-                <thead>
-                <tr>
-                  <th class="text-left">
-                    选择
-                  </th>
-                  <th class="text-left"> fSj权限原名
-                  </th>
-                  <th class="text-left">
-                    权限译名
-                  </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr
-                  v-for="(value, key) in newPermissionGroupDialog.permissionList"
-                  :key="key"
-                >
-                  <td><input type="checkbox" :value="key" v-model="newPermissionGroupDialog.selected"></td>
-                  <td>{{ key }}</td>
-                  <td>{{ value }}</td>
-                </tr>
-                </tbody>
-              </v-table>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn color="warning" :disabled="newPermissionGroupDialog.selected.length < 1"
-                     @click="newPermissionGroupDialog.selected = []">清空已选择
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="error" @click="restore_init('newPermissionGroupDialog')">取消</v-btn>
-          <v-btn color="success" @click="newPermissionGroup()">确定</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <!--    修改权限组状态-->
-    <v-dialog
-      id="inputDialog"
-      v-model="updateGroupStatusDialog.flag"
-      activator="parent"
-      min-width="400px"
-      width="auto"
-      persistent
-    >
-      <v-card>
-        <v-card-title>修改权限组状态</v-card-title>
-        <v-card-text>
-          <v-switch label="是否启用" v-model="updateGroupStatusDialog.value" color="primary"></v-switch>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="error" @click="restore_init('updateGroupStatusDialog')">取消</v-btn>
-          <v-btn color="success" @click="updateStatus(updateGroupStatusDialog.gid,updateGroupStatusDialog.value)">确定
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <!--    修改权限组信息-->
-    <v-dialog
-      id="inputDialog"
-      v-model="editPermissionGroupDialog.flag"
-      activator="parent"
-      min-width="400px"
-      width="auto"
-      persistent
-    >
-      <v-card>
-        <v-card-title>编辑权限组--{{ editPermissionGroupDialog.name }}</v-card-title>
-        <v-card-text>
-          <v-text-field type="text" label="权限组名" v-model="editPermissionGroupDialog.name"></v-text-field>
-          <v-switch label="是否启用" v-model="editPermissionGroupDialog.status" color="primary"></v-switch>
-          <v-card class="pa-1">
-            <v-card-title>请选择该组可使用的权限</v-card-title>
-            <v-card-text>
-              <v-table density="compact">
-                <thead>
-                <tr>
-                  <th class="text-left">
-                    选择
-                  </th>
-                  <th class="text-left">
-                    权限原名
-                  </th>
-                  <th class="text-left">
-                    权限译名
-                  </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr
-                  v-for="(value, key) in editPermissionGroupDialog.permissionList"
-                  :key="key"
-                >
-                  <td><input type="checkbox" :value="key" v-model="editPermissionGroupDialog.selected"></td>
-                  <td>{{ key }}</td>
-                  <td>{{ value }}</td>
-                </tr>
-                </tbody>
-              </v-table>
-            </v-card-text>
-          </v-card>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="error" @click="restore_init('editPermissionGroupDialog')">取消</v-btn>
-          <v-btn color="success" @click="editPermissionGroup()">确定</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
 </template>
 
 <style scoped>

@@ -1,11 +1,10 @@
 <script>
-import {useSettingsStore} from "@/store/settings";
 export default {
   name: "Display_Settings",
-  data: ()=>{
-    return {
-      settings_camera: null,
-      settings_record: null
+  props: {
+    setting_data: {
+      type: Object,
+      required: true
     }
   }
 }
@@ -25,7 +24,7 @@ export default {
         label="宽"
         hint="例如：1920"
         type="number"
-        v-model="settings_camera.width"
+        v-model="setting_data.camera.width"
       ></v-text-field>
     </v-col>
     <v-col
@@ -36,7 +35,7 @@ export default {
         label="高"
         hint="例如：1080"
         type="number"
-        v-model="settings_camera.height"
+        v-model="setting_data.camera.height"
       ></v-text-field>
     </v-col>
   </v-row>
@@ -49,7 +48,7 @@ export default {
       max="60"
       min="24"
       step="1"
-      v-model="settings_camera.fps"
+      v-model="setting_data.camera.fps"
     >
       <template v-slot:append>
         <v-text-field
@@ -58,7 +57,7 @@ export default {
           density="compact"
           hide-details
           variant="outlined"
-          v-model="settings_camera.fps"
+          v-model="setting_data.camera.fps"
         ></v-text-field>
       </template>
     </v-slider>
@@ -72,7 +71,7 @@ export default {
       max="5"
       min="0.01"
       step="0.01"
-      v-model="settings_camera.updateDisplayChange"
+      v-model="setting_data.camera.updateDisplayChange"
     >
       <template v-slot:append>
         <v-text-field
@@ -81,7 +80,7 @@ export default {
           density="compact"
           hide-details
           variant="outlined"
-          v-model="settings_camera.updateDisplayChange"
+          v-model="setting_data.camera.updateDisplayChange"
         ></v-text-field>
       </template>
     </v-slider>
@@ -90,25 +89,25 @@ export default {
     <div class="text-caption">
       亮度
     </div>
-    <v-text-field type="number" v-model="settings_camera.brightness"></v-text-field>
+    <v-text-field type="number" v-model="setting_data.camera.brightness"></v-text-field>
   </div>
   <div>
     <div class="text-caption">
       曝光
     </div>
-    <v-text-field type="number" v-model="settings_camera.exposure"></v-text-field>
+    <v-text-field type="number" v-model="setting_data.camera.exposure"></v-text-field>
   </div>
   <div>
     <div class="text-caption">
       饱和度
     </div>
-    <v-text-field type="number" v-model="settings_camera.colorfulness"></v-text-field>
+    <v-text-field type="number" v-model="setting_data.camera.colorfulness"></v-text-field>
   </div>
   <div>
     <div class="text-caption">
       色调
     </div>
-    <v-text-field type="number" v-model="settings_camera.tonal"></v-text-field>
+    <v-text-field type="number" v-model="setting_data.camera.tonal"></v-text-field>
   </div>
   <div>
     <div class="text-caption">
@@ -122,7 +121,7 @@ export default {
     <div class="text-caption">
       录制帧率
     </div>
-    <v-text-field type="number" v-model="settings_record.fps"></v-text-field>
+    <v-text-field type="number" v-model="setting_data.record.fps"></v-text-field>
   </div>
   <div>
     <div class="text-caption">

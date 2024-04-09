@@ -1,19 +1,12 @@
 <script>
-import {useSettingsStore} from "@/store/settings";
 export default {
   name: "Base_Settings",
-  data: ()=>{
-    return {
-      settings_base: null,
-      settings_record: null
+  props: {
+    setting_data: {
+      type: Object,
+      required: true
     }
   }
-  // watch: {
-  //   "settings_base.record"(val) {
-  //     console.log(val)
-  //     console.log(useSettingsStore().settings_base.record)
-  //   }
-  // }
 }
 </script>
 
@@ -23,19 +16,19 @@ export default {
     <div class="text-caption">
       采集卡设备ID/路径
     </div>
-    <v-text-field type="text" v-model="settings_base.camera"></v-text-field>
+    <v-text-field type="text" v-model="setting_data.base.camera"></v-text-field>
   </div>
   <div>
     <div class="text-caption">
       HID串口设备
     </div>
-    <v-text-field type="text" v-model="settings_base.HID_Serial"></v-text-field>
+    <v-text-field type="text" v-model="setting_data.base.HID_Serial"></v-text-field>
   </div>
   <div>
     <div class="text-caption">
       Session到期时间(分)
     </div>
-    <v-text-field type="number" v-model="settings_base.sessionExpiry"></v-text-field>
+    <v-text-field type="number" v-model="setting_data.base.sessionExpiry"></v-text-field>
   </div>
   <div>
     <div class="text-caption">
@@ -45,12 +38,12 @@ export default {
       <v-col
       cols="12"
       md="6">
-        <v-text-field type="text" v-model="settings_base.USB_Device"></v-text-field>
+        <v-text-field type="text" v-model="setting_data.base.USB_Device"></v-text-field>
       </v-col>
       <v-col
       cols="12"
       md="6">
-        <v-text-field type="text" v-model="settings_base.USB_MountDirectory"></v-text-field>
+        <v-text-field type="text" v-model="setting_data.base.USB_MountDirectory"></v-text-field>
       </v-col>
     </v-row>
   </div>
@@ -58,13 +51,13 @@ export default {
     <div class="text-caption">
       设备被控制时启动视频录制
     </div>
-    <v-checkbox v-model="settings_base.record"></v-checkbox>
+    <v-checkbox v-model="setting_data.base.record"></v-checkbox>
   </div>
   <div>
     <div class="text-caption">
       最大保留录制数
     </div>
-    <v-text-field type="number" v-model="settings_record.maxFile"></v-text-field>
+    <v-text-field type="number" v-model="setting_data.record.maxFile"></v-text-field>
   </div>
   <v-divider></v-divider>
   <p class="text-h5 setting_subtitle">日志设置</p>

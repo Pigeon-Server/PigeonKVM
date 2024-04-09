@@ -7,7 +7,7 @@ import os
 import django
 
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ipkvm.settings")### 把test02 改成自己的项目名即可
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ipkvm.settings")
 django.setup()
 
 # Create your models here.

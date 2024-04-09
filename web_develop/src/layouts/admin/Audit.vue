@@ -1,13 +1,13 @@
 <script>
-import Audit_table from "@/components/AuditPage/audit_table.vue";
-import SystemLog_table from "@/components/AuditPage/systemLog_table.vue";
-import AccessLog_table from "@/components/AuditPage/accessLog_table.vue";
-import FileChangeLog_table from "@/components/AuditPage/fileChangeLog_table.vue";
+import audit from "@/components/tables/auditPage/audit.vue";
+import systemLog from "@/components/tables/auditPage/systemLog.vue";
+import accessLog from "@/components/tables/auditPage/accessLog.vue";
+import fileChangeLog from "@/components/tables/auditPage/fileChangeLog.vue";
 
 export default {
   name: "audit",
-  components: {FileChangeLog_table, AccessLog_table, SystemLog_table, Audit_table},
-  data: ()=>{
+  components: {fileChangeLog, accessLog, systemLog, audit},
+  data: () => {
     return {
       tab: null
     }
@@ -28,16 +28,16 @@ export default {
     <v-card-text>
       <v-window v-model="tab">
         <v-window-item value="audit">
-          <audit_table></audit_table>
+          <audit/>
         </v-window-item>
         <v-window-item value="System_log">
-          <system-log_table></system-log_table>
+          <system-log/>
         </v-window-item>
         <v-window-item value="Access_log">
-          <access-log_table></access-log_table>
+          <access-log/>
         </v-window-item>
         <v-window-item value="File_change_log">
-          <file-change-log_table></file-change-log_table>
+          <file-change-log/>
         </v-window-item>
       </v-window>
     </v-card-text>

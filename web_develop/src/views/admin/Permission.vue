@@ -1,5 +1,5 @@
 <script>
-import GroupList from "@/layouts/admin/PermissionGroupList.vue";
+import GroupList from "@/layouts/admin/PermissionGroup/PermissionGroup.vue";
 
 export default {
   name: "Permission",

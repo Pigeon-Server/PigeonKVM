@@ -1,4 +1,5 @@
 <script>
+import message from "@/scripts/utils/message.js"
 import axios from "axios";
 
 import('@/styles/Admin/UserList.scss')
@@ -44,17 +45,6 @@ export default {
     }
   },
   methods: {
-    // 显示APi错误
-    showApiErrorMsg(message, status=null) {
-      this.$notify.create({
-        text: `API错误：${message} ${status ? '(status:'+status+')': ''}`,
-        level: 'error',
-        location: 'bottom right',
-        notifyOptions: {
-          "close-delay": 3000
-        }
-      })
-    },
     // 获取用户列表
     getUserList(search="", page=1, pageSize=20) {
       axios.post("/admin/api/getUserList",{
@@ -86,11 +76,11 @@ export default {
             }
             console.log(this.userList)
           } else {
-            this.showApiErrorMsg(res.data.msg,apiStatus)
+            message.showApiErrorMsg(this, res.data.msg,apiStatus)
           }
       }).catch(err=>{
         console.error(err)
-        this.showApiErrorMsg(err.message)
+        message.showApiErrorMsg(this, err.message)
       })
     },
     // 打开输入框
@@ -110,7 +100,7 @@ export default {
     // 获取用户信息
     getUserInfo(uid) {
       return axios.post("/admin/api/getUserInfo",{id:uid}).catch(err=>{
-        this.showApiErrorMsg(err.message)
+        message.showApiErrorMsg(this, err.message)
       })
     },
     // 更新用户信息
@@ -119,14 +109,14 @@ export default {
       axios.post("/admin/api/setUserInfo",data).then(res=>{
         const status = res.data.status
         if (status !== 1) {
-         this.showApiErrorMsg(res.data.msg, status)
+         message.showApiErrorMsg(this, res.data.msg, status)
          return false
         } else {
           return true
         }
       }).catch(err=>{
         console.error(err)
-        this.showApiErrorMsg(err.message)
+        message.showApiErrorMsg(this, err.message)
         return false
       })
     },
@@ -141,13 +131,13 @@ export default {
       }).then(res=>{
         const status = res.data.status
         if (status !== 1) {
-          this.showApiErrorMsg(res.data.msg, status)
+          message.showApiErrorMsg(this, res.data.msg, status)
         } else {
           this.getUserList("", this.maxPage)
         }
         this.newUserDialog.flag = false
       }).catch(err=>{
-        this.showApiErrorMsg(err.message)
+        message.showApiErrorMsg(this, err.message)
       })
     },
     // 删除用户
@@ -158,12 +148,12 @@ export default {
           axios.post("/admin/api/delUser", {id:uid}).then(res=>{
             const status = res.data.status
             if (status !== 1) {
-              this.showApiErrorMsg(res.data.msg, status)
+              message.showApiErrorMsg(this, res.data.msg, status)
             } else {
               this.getUserList("", this.maxPage)
             }
           }).catch(err=>{
-            this.showApiErrorMsg(err.message)
+            message.showApiErrorMsg(this, err.message)
           })
         }
         this.newUserDialog.flag = false
@@ -189,11 +179,11 @@ export default {
             })
           }
         } else {
-          this.showApiErrorMsg(res.data.msg,apiStatus)
+          message.showApiErrorMsg(this, res.data.msg,apiStatus)
         }
       }).catch(err=>{
         console.error(err)
-        this.showApiErrorMsg(err.message)
+        message.showApiErrorMsg(this, err.message)
       })
     },
     // 编辑用户
@@ -202,7 +192,6 @@ export default {
         // 编辑用户名
         case "editUsername":
           this.getUserInfo(uid).then(res=>{
-            console.log(res.data)
             this.openInputDialog(uid, "更新用户名", "", res.data.data.userName, (uid, input)=>{
               this.updateUserInfo(uid,{userName: input})
               this.getUserList(this.search, this.currentPage)
@@ -212,7 +201,6 @@ export default {
         // 编辑真实姓名
         case "editRealName":
           this.getUserInfo(uid).then(res=>{
-            console.log(res.data)
             this.openInputDialog(uid, "更新姓名", "", res.data.data.realName, (uid, input)=>{
               this.updateUserInfo(uid, {realName: input})
               this.getUserList(this.search, this.currentPage)
@@ -222,7 +210,6 @@ export default {
         // 编辑邮箱
         case "editEmail":
           this.getUserInfo(uid).then(res=>{
-            console.log(res.data)
             this.openInputDialog(uid, "更新邮箱", "", res.data.data.email, (uid, input)=>{
               this.updateUserInfo(uid, {email: input})
               this.getUserList(this.search, this.currentPage)
@@ -249,9 +236,7 @@ export default {
         // 重置密码
         case "resetPassword":
           this.getUserInfo(uid).then(res=>{
-            console.log(res.data)
             this.openInputDialog(uid, "设置新密码", "至少6字符，必须含有数字，小写字母，大写字母，特殊字符", null,(uid, input)=>{
-              console.log(uid, input)
               this.updateUserInfo(uid, {password: input})
               this.getUserList(this.search, this.currentPage)
             }, "password")
@@ -282,10 +267,6 @@ export default {
   created() {
     this.getUserList()
   },
-  mounted() {
-
-  },
-
 }
 </script>
 
@@ -342,7 +323,6 @@ export default {
         <td>
           <v-btn size="small" @click="editUser(item.uid, 'resetPassword')">重置密码</v-btn>
           <v-btn size="small" color="error" @click="delUser(item.uid)">删除</v-btn>
-<!--          <v-btn size="small"></v-btn>-->
         </td>
       </tr>
     </tbody>

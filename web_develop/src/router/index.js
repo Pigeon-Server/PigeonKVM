@@ -5,6 +5,7 @@ import UserInfo from "@/views/UserInfo.vue";
 import controlPage from "@/views/Control.vue"
 import userManagementPage from "@/views/admin/User.vue"
 import permissionManagementPage from "@/views/admin/Permission.vue"
+import permissionManagementPage_new from "@/layouts/admin/PermissionGroup/PermissionGroup.vue"
 import auditAndLoggerPage from "@/views/admin/Audit.vue"
 import fileManagementPage from "@/views/Files.vue"
 import configPage from "@/views/admin/Config.vue"

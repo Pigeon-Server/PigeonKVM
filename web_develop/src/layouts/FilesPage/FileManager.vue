@@ -1,7 +1,7 @@
 <script>
 import AceEdit from "@/components/AceEdit.vue";
 import SparkMD5 from "spark-md5"
-// import query from "queue"
+import message from "@/scripts/utils/message";
 
 import('@/styles/FilesPage/FileManager.scss')
 export default {
@@ -79,12 +79,12 @@ export default {
       return list
     },
     // 显示信息弹窗
-    showInfoMsg(msg) {
-      if (!this.dialogs.info.flag) {
-        this.dialogs.info.flag = true
-        this.dialogs.info.msg = msg
-      }
-    },
+    // showInfoMsg(msg) {
+    //   if (!this.dialogs.info.flag) {
+    //     this.dialogs.info.flag = true
+    //     this.dialogs.info.msg = msg
+    //   }
+    // },
     // 显示输入框
     showInputDialog(title, label, confirmationCallback, cancelCallback=null, type="text") {
       /*
@@ -115,14 +115,7 @@ export default {
           return false
         }
       } else {
-        this.$notify.create({
-          text: `服务器未连接，请刷新页面`,
-          level: 'error',
-          location: 'bottom right',
-          notifyOptions: {
-            "close-delay": 3000
-          }
-        })
+        message.showError(this, `服务器未连接，请刷新页面`)
       }
       return false
     },
@@ -132,7 +125,7 @@ export default {
       this.dialogs.newDir.input = null
       this.dialogs.newDir.flag = false
       if (!input || input.length <= 0) {
-        this.showInfoMsg("请输入要创建的文件夹名")
+        message.showWarning(this, "请输入要创建的文件夹名称")
         return
       }
       this.sendJsonToWebSocket({
@@ -149,7 +142,7 @@ export default {
       this.dialogs.newFile.input = null
       this.dialogs.newFile.flag = false
       if (!input || input.length <= 0) {
-        this.showInfoMsg("请输入要创建的文件名")
+        message.showWarning(this,"请输入要创建的文件名")
         return
       }
       this.sendJsonToWebSocket({
@@ -166,7 +159,7 @@ export default {
       this.dialogs.reName.input = null
       this.dialogs.reName.flag = false
       if (!input || input.length <= 0) {
-        this.showInfoMsg("请输入修改后的文件名")
+        message.showWarning(this,"请输入修改后的文件名")
         return
       }
       this.sendJsonToWebSocket({
@@ -305,14 +298,7 @@ export default {
           path: this.currentPath,
         }
       })
-      this.$notify.create({
-        text: `目录已刷新`,
-        level: 'success',
-        location: 'bottom right',
-        notifyOptions: {
-          "close-delay": 1500
-        }
-      })
+      message.showSuccess(this, `目录已刷新`, 1500)
     },
     // 格式化文件大小
     formatBytes(bytes) {
@@ -409,9 +395,9 @@ export default {
         this.dialogs.uploadFile.fileInfoList = []
         // 清空文件输入
         this.dialogs.uploadFile.inputFile = []
-        this.showInfoMsg("上传完成")
+        message.showInfo(this,"上传完成")
       } else {
-        this.showInfoMsg("当前有任务正在上传中")
+        message.showWarning(this,"当前有任务正在上传中")
       }
 
       // 方法-等待ws队列清空
@@ -531,14 +517,7 @@ export default {
           outputName: filename
         }
       })
-      this.$notify.create({
-        text: `正在压缩文件`,
-        level: 'success',
-        location: 'bottom right',
-        notifyOptions: {
-          "close-delay": 3000
-        }
-      })
+      message.showSuccess(this, `正在压缩文件`, 1500)
     },
     // 解压文件请求
     decompress(toPath) {
@@ -551,14 +530,7 @@ export default {
           decompressToPath: toPath
         }
       })
-      this.$notify.create({
-        text: `正在解压文件`,
-        level: 'success',
-        location: 'bottom right',
-        notifyOptions: {
-          "close-delay": 3000
-        }
-      })
+      message.showSuccess(this, `正在解压文件`, 1500)
     }
   },
   created() {
@@ -567,37 +539,16 @@ export default {
       this.websocket = new WebSocket(`ws://${location.host}/api/websocket/fileManager`)
       this.websocket.addEventListener("open",()=>{
         console.log("Connect WebSocket To FileManager")
-        that.$notify.create({
-        text: '服务器连接成功',
-        level: 'success',
-        location: 'bottom right',
-        notifyOptions: {
-          "close-delay": 3000
-        }
-      })
+        message.showSuccess(this, `服务器连接成功`)
         this.sendJsonToWebSocket({action: "getFileList", data: {}})
       })
       this.websocket.addEventListener("error",event=>{
         console.error("WebSocket Error!\n"+event.message)
-        that.$notify.create({
-          text: `连接发生错误：${event.message}`,
-          level: 'error',
-          location: 'bottom right',
-          notifyOptions: {
-            "close-delay": 3000
-          }
-        })
+        message.showError(this, `连接发生错误：${event.message}`)
       })
       this.websocket.addEventListener("close",event=>{
         console.warn(`Connect Close: ${event.code}`)
-        that.$notify.create({
-            text: `连接已断开：${event.code}`,
-            level: 'error',
-            location: 'bottom right',
-            notifyOptions: {
-              "close-delay": 3000
-          }
-        })
+        message.showWarning(this, `连接已断开：${event.code}`)
       })
       this.websocket.addEventListener("message",event=>{
         console.log(JSON.parse(event.data))
@@ -622,14 +573,7 @@ export default {
             break
           }
           case "info": {
-            this.$notify.create({
-              text: data.msg,
-              level: 'info',
-              location: 'bottom right',
-              notifyOptions: {
-                "close-delay": 3000
-              }
-            })
+            message.showInfo(this, data.msg)
             break
           }
           case "success": {
@@ -644,25 +588,11 @@ export default {
             break
           }
           case "warning": {
-            this.$notify.create({
-              text: data.msg,
-              level: 'warning',
-              location: 'bottom right',
-              notifyOptions: {
-                "close-delay": 3000
-              }
-            })
+            message.showWarning(this, data.msg)
             break
           }
           case "error": {
-            this.$notify.create({
-              text: data.msg,
-              level: 'error',
-              location: 'bottom right',
-              notifyOptions: {
-                "close-delay": 3000
-              }
-            })
+            message.showError(this, data.msg)
             break
           }
           default:
@@ -687,14 +617,7 @@ export default {
             if (that.websocket != null && that.websocket.readyState === WebSocket.OPEN) {
               this.dialogs.uploadFile.flag = true
             } else {
-              that.$notify.create({
-                text: `服务器未连接，请刷新页面`,
-                level: 'error',
-                location: 'bottom right',
-                notifyOptions: {
-                  "close-delay": 3000
-                }
-              })
+              message.showError(this, `服务器未连接，请刷新页面`)
             }
             break
           case "refresh":
@@ -724,9 +647,9 @@ export default {
             if (!that.dialogs.reName.flag && that.getSelectFileList().length === 1) {
               that.dialogs.reName.flag = true
             } else if (that.getSelectFileList().length > 1) {
-              that.showInfoMsg("不能多选文件")
+              message.showWarning(this,"该操作不支持多选文件")
             } else if (that.getSelectFileList().length < 1) {
-              that.showInfoMsg("未选择文件")
+              message.showWarning(this,"未选择文件")
             }
             break
           case "del":
@@ -738,23 +661,9 @@ export default {
                   filename: this.getSelectFileList(),
                 }
               })
-              that.$notify.create({
-                text: `正在删除文件`,
-                level: 'success',
-                location: 'bottom right',
-                notifyOptions: {
-                  "close-delay": 3000
-                }
-              })
+              message.showSuccess(this, `正在删除文件`)
             } else if (this.getSelectFileList().length >= 0 ) {
-              that.$notify.create({
-                text: `未选择要删除的文件`,
-                level: 'error',
-                location: 'bottom right',
-                notifyOptions: {
-                  "close-delay": 3000
-                }
-              })
+              message.showWarning(this, `未选择要删除的文件`)
             }
             break
           case "copy":
@@ -762,23 +671,9 @@ export default {
               this.clipboard.mode = "copy"
               this.clipboard.selectedDir = this.currentPath.map((x) => x)
               this.clipboard.selectedFile = this.getSelectFileList()
-              that.$notify.create({
-                text: `已将要复制的文件记录至剪贴板，请前往目标文件夹粘贴`,
-                level: 'success',
-                location: 'bottom right',
-                notifyOptions: {
-                  "close-delay": 3000
-                }
-              })
+              message.showInfo(this, `已将要复制的文件记录至剪贴板，请前往目标文件夹粘贴`)
             } else if (this.getSelectFileList().length <= 0) {
-              that.$notify.create({
-                text: `未选择要复制的文件`,
-                level: 'error',
-                location: 'bottom right',
-                notifyOptions: {
-                  "close-delay": 3000
-                }
-              })
+              message.showWarning(this, '未选择要复制的文件')
             }
             break
           case "move":
@@ -786,23 +681,9 @@ export default {
               this.clipboard.mode = "move"
               this.clipboard.selectedDir = this.currentPath.map((x) => x)
               this.clipboard.selectedFile = this.getSelectFileList()
-              that.$notify.create({
-                text: `已将要移动的文件记录至剪贴板，请前往目标文件夹粘贴`,
-                level: 'success',
-                location: 'bottom right',
-                notifyOptions: {
-                  "close-delay": 3000
-                }
-              })
+              message.showInfo(this, '已将要移动的文件记录至剪贴板，请前往目标文件夹粘贴')
             } else if (this.getSelectFileList().length <= 0) {
-              that.$notify.create({
-                text: `未选择要移动的文件`,
-                level: 'error',
-                location: 'bottom right',
-                notifyOptions: {
-                  "close-delay": 3000
-                }
-              })
+              message.showWarning(this, '未选择要移动的文件')
             }
             break
           case "paste":
@@ -819,51 +700,23 @@ export default {
               this.clipboard.selectedDir = null
               this.clipboard.selectedFile = null
             } else if (this.clipboard.selectedDir === this.currentPath) {
-              that.$notify.create({
-                text: `不能在源文件夹粘贴`,
-                level: 'error',
-                location: 'bottom right',
-                notifyOptions: {
-                  "close-delay": 3000
-                }
-              })
+              message.showError(this, "不能在源文件夹粘贴")
             } else {
-              that.$notify.create({
-                text: `剪贴板中没有文件`,
-                level: 'error',
-                location: 'bottom right',
-                notifyOptions: {
-                  "close-delay": 3000
-                }
-              })
+              message.showWarning(this, "剪切板为空")
             }
             break
           case "compress":
             if (this.getSelectFileList().length > 0) {
               this.showInputDialog("新建压缩包","请输入压缩包名称", this.compress)
             } else {
-              that.$notify.create({
-                text: `未选择要压缩的文件`,
-                level: 'error',
-                location: 'bottom right',
-                notifyOptions: {
-                  "close-delay": 3000
-                }
-              })
+              message.showWarning(this, "未选择要压缩的文件")
             }
             break
           case "decompress":
             if (this.getSelectFileList().length > 0) {
               this.showInputDialog("将文件解压到","请输入要解压到的目录", this.decompress)
             } else if (this.getSelectFileList().length >= 0 ) {
-              that.$notify.create({
-                text: `未选择要解压的文件`,
-                level: 'error',
-                location: 'bottom right',
-                notifyOptions: {
-                  "close-delay": 3000
-                }
-              })
+              message.showWarning(this, "未选择要解压的文件")
             }
             break
           default:
@@ -908,13 +761,8 @@ export default {
         <div class="left">
           <v-btn size="x-small" id="refresh" title="刷新" icon="mdi:mdi-refresh">
             <v-icon icon="mdi:mdi-refresh"></v-icon>
-<!--            <template v-slot:prepend>-->
-<!--              <v-icon icon="mdi:mdi-refresh"></v-icon>-->
-<!--            </template>-->
-<!--            刷新页面-->
           </v-btn>
           <v-btn size="small" id="upload" title="上传文件">
-<!--            <v-icon icon="mdi:mdi-upload"></v-icon>-->
             <template v-slot:prepend>
               <v-icon icon="mdi:mdi-upload"></v-icon>
             </template>

@@ -1,4 +1,5 @@
 <script>
+import message from "@/scripts/utils/message.js"
 import axios from "axios";
 
 export default {
@@ -37,36 +38,15 @@ export default {
       }).then(res=>{
         const apiStatus = res.data.status
         if (apiStatus === 1) {
-          this.$notify.create({
-            text: `密码修改成功~`,
-            level: 'success',
-            location: 'bottom right',
-            notifyOptions: {
-              "close-delay": 3000
-            }
-          })
+          message.showSuccess(this, "密码修改成功~")
           this.oldPassword = ""
           this.newPassword = ""
           this.newPassword2 = ""
         } else {
-          this.$notify.create({
-            text: `${res.data.msg}`,
-            level: 'error',
-            location: 'bottom right',
-            notifyOptions: {
-              "close-delay": 3000
-            }
-          })
+          message.showError(this, res.data.msg)
         }
       }).catch(err=>{
-        this.$notify.create({
-          text: `API错误：${err.message}`,
-          level: 'error',
-          location: 'bottom right',
-          notifyOptions: {
-            "close-delay": 3000
-          }
-        })
+        message.showApiErrorMsg(this, err.message)
       })
     }
   }
