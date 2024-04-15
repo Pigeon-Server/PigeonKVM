@@ -53,3 +53,10 @@ a {
 .setting_subtitle {
     margin-bottom: 15px;
 }
+.toolsBar {
+    display: flex;
+    align-items: center;
+    .v-btn {
+        margin-right: 10px;
+    }
+}

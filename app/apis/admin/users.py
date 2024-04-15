@@ -67,6 +67,7 @@ def addUser(req):
             email = req_json.get("email")
             password = req_json.get("password")
             disable = req_json.get("disable")
+            permission = req_json.get("permission")
             if userName and password:
                 if Users.objects.filter(userName=userName):
                     return ResponseJson({"status": 0, "msg": "用户已存在"})
@@ -76,7 +77,14 @@ def addUser(req):
                     return ResponseJson({"status": 0, "msg": "邮箱已使用过"})
                 if not re.match("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{6,16}", password):
                     return ResponseJson({"status": 0, "msg": "密码不符合安全要求（至少6字符，必须含有数字，小写字母，大写字母，特殊字符）"})
-                createUser = Users.objects.create(userName=userName, realName=realName, email=email, password=password, disable=disable)
+                createUser = Users.objects.create(
+                    userName=userName,
+                    realName=realName,
+                    email=email,
+                    password=password,
+                    disable=disable,
+                    permission=Permission_groups.objects.get(id=permission) if permission else None
+                )
                 if createUser:
                     writeAudit(req.session.get("userID"), "Add User(添加用户)",
                                "User Manager(用户管理)",

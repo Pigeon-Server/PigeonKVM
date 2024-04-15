@@ -10,7 +10,7 @@ PigeonKVM是一个由Python+django编写的IPKVM程序，用于实现服务器�
 ```shell
     # 克隆源码到本地
     git clone https://github.com/Pigeon-Server/PigeonKVM.git
-    cd IPKVM-Core
+    cd PigeonKVM
 ```
 
 **编译用户界面**

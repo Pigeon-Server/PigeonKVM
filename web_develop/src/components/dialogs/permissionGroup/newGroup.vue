@@ -165,7 +165,8 @@ export default {
             </v-table>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="warning" :disabled="permissionSelect.length < 1" @click="permissionSelect = []">清空已选择
+            <v-btn color="warning" :disabled="permissionSelect.length < 1" @click="permissionSelect = []">
+              清空已选择
             </v-btn>
           </v-card-actions>
         </v-card>
