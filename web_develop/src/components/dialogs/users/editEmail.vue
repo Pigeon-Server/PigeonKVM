@@ -1,10 +1,9 @@
 <script>
+import user from "@/scripts/admin/users"
+// import message from "@/scripts/utils/message";
 import InputDialog from "@/components/dialogs/inputDialog.vue";
-import permission from "@/scripts/admin/permission";
-import message from "@/scripts/utils/message";
-
 export default {
-  name: "EditGroupName",
+  name: "editEmail",
   components: {InputDialog},
   emits: ['close'],
   props: {
@@ -12,14 +11,14 @@ export default {
       type: Boolean,
       required: true
     },
-    gid: {
+    uid: {
       type: Number,
       required: true
     }
   },
   data() {
     return {
-      value: null,
+      value: null
     }
   },
   watch: {
@@ -27,24 +26,18 @@ export default {
       if (!val) {
         this.value = null
       } else {
-        permission.getGroupInfo(this, this.gid).then(res => {
-          const apiStatus = res.data.status
-          if (apiStatus === 1) {
-            const groupInfo = res.data.data
-            this.value = groupInfo.name
-          } else {
-            message.showApiErrorMsg(this, res.data.msg, apiStatus)
-          }
+        user.getUserInfo(this, this.uid).then(res=>{
+          this.value = res.data.data.email
         })
       }
-    },
+    }
   },
   methods: {
     submit() {
       /**
        * 提交
        */
-      permission.editGroup(this, this.gid, {newName: this.value}).then(() => {
+      user.updateUserInfo(this, this.uid, {email: this.value}).then(()=>{
         this.close()
       })
     },
@@ -57,13 +50,12 @@ export default {
 
 <template>
   <input-dialog
-    title="编辑权限组名"
+    title="编辑邮箱"
     :flag="flag"
     :value="value"
     @close="close"
     @update="args => {this.value = args}"
-    @confirm="submit()"
-  />
+    @confirm="submit()"/>
 </template>
 
 <style scoped>

@@ -1,5 +1,6 @@
 import json
 
+import app.apps as apps
 from app.models import Settings
 from app.entity.Config import config as configObj
 
@@ -9,6 +10,7 @@ except ModuleNotFoundError:
     import tomli as tomllib
 
 from app.util.logger import Log
+
 
 # 加载配置文件到对象
 def loadConfig(config):
@@ -20,7 +22,7 @@ def loadConfig(config):
             settingKeys = settingKeySplit[-1:]
             annotations = config_obj.__annotations__
             for index, split in enumerate(settingKeys):
-                if index == len(settingKeys)-1:
+                if index == len(settingKeys) - 1:
                     setattr(config_obj, split, annotations.get(split)(item.value))
                 elif hasattr(config_obj, split):
                     config_obj = getattr(config_obj, split)
@@ -42,6 +44,7 @@ def saveConfig(obj):
             temp = item1Key + "."
     return loadConfig(obj)
 
+
 # 将字典转换到对象
 def dictToConfig(data, obj):
     """
@@ -62,11 +65,14 @@ def dictToConfig(data, obj):
             continue
     return temp_config
 
+
 try:
     with open("configs/config.toml", "rb") as f:
         main_config = tomllib.load(f)
-        Log.success("配置文件加载完成")
-    config = configObj()
-    config = loadConfig(config)
-except Exception:
-    raise RuntimeError("配置文件加载失败")
+        Log.success("基本配置文件加载完成")
+except Exception as err:
+    raise RuntimeError("基本配置文件加载失败，应用启动失败")
+
+# if apps.STARTAPP:
+#     config = configObj()
+#     config = loadConfig(config)

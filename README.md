@@ -1,5 +1,5 @@
 # [PigeonKVM](https://github.com/Pigeon-Server/PigeonKVM)
-PigeonKVM是一个由Python+django编写的IPKVM程序，用于实现服务器主机管理，拥有更强大的审计与权限管理功能 
+PigeonKVM是一个由Python+Django+OpenCV编写的IPKVM程序，用于实现主机管理，拥有更强大的审计与权限管理功能 
 
 **该项目当前处于alpha阶段，功能尚未完善，可能会有严重的性能问题**
 
@@ -52,12 +52,14 @@ PigeonKVM是一个由Python+django编写的IPKVM程序，用于实现服务器�
      ../venv/bin/python3 -c "import wiringpi; help(wiringpi)"
 ```
 
-**迁移数据库与导入数据**
+**初始化数据库**
 ```shell
-    # 创建迁移数据
+    # 生成数据表
     python manage.py makemigrations
-    # 迁移数据库 
+    # 创建数据库文件 
     python manage.py migrate
+    # 初始化数据库数据
+    python manage.py initial_data
 ```
 
 ### 以Debug模式启动项目

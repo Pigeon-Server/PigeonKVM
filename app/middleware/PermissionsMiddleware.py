@@ -1,7 +1,8 @@
 from django.utils.deprecation import MiddlewareMixin
-from django.shortcuts import HttpResponse, redirect
-from app.models import Users, Permission_groups
+from django.shortcuts import redirect
+from app.models import Users
 from app.util.Response import ResponseJson
+from app.util.permission import groupPermission
 
 class PermissionsMiddleware(MiddlewareMixin):
     """
@@ -56,7 +57,7 @@ class PermissionsMiddleware(MiddlewareMixin):
         if path_info in Ignore:
             return
 
-        permission = Permission_groups.objects.filter(id=Users.objects.filter(id=userId).first().permission_id).values()[0]
+        user = Users.objects.filter(id=userId)
 
         """
             all = models.BooleanField("所有权限", default=False, null=True)
@@ -71,21 +72,23 @@ class PermissionsMiddleware(MiddlewareMixin):
         """
 
         # 无权限时
-        if not permission:
+        if not user.first().permission_id:
             if path_info in accessPermission.get("api").keys():
                 return ResponseJson({"status": -1, "msg": "未授权访问-账户无权限"})
             elif path_info in accessPermission.get("page").keys():
                 return redirect("/error/403")
 
+        gp = groupPermission(user.first().permission_id)
+
         # 权限组被禁用时
-        if permission.get("disable"):
+        if gp.is_disable():
             if path_info in accessPermission.get("api").keys():
                 return ResponseJson({"status": -1, "msg": "未授权访问-组已禁用"})
             elif path_info in accessPermission.get("page").keys():
                 return redirect("/error/403")
 
         # 拥有全部权限时
-        if permission.get("all"):
+        if gp.check_group_permission("all"):
             return
 
         # 检查API权限
@@ -93,7 +96,7 @@ class PermissionsMiddleware(MiddlewareMixin):
             required = accessPermission.get("api").get(path_info)
 
             if required:
-                if permission.get(required):
+                if gp.check_group_permission(required):
                     return
                 else:
                     return ResponseJson({"status": -1, "msg": "未授权访问-无权限访问该API"})
@@ -102,14 +105,7 @@ class PermissionsMiddleware(MiddlewareMixin):
         elif path_info in accessPermission.get("page").keys():
             required = accessPermission.get("page").get(path_info)
             if required:
-                if required and permission.get(required):
+                if required and gp.check_group_permission(required):
                     return
                 else:
                     return redirect("/error/403")
-
-        # if request.path_info in ["/login", "/auth/login"]:
-        #     return
-        # if request.session.get("user"):
-        #     return
-        # else:
-        #     return redirect("/login")

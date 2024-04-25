@@ -25,13 +25,15 @@ def main():
 
 def stopSignal(signum, frame):
     global stop
+    print(signum)
+    print(frame)
     if stop is not True: 
         Log.success("应用程序正在停止......")
         stop = True
-        # if app.apps.cameraObj.getRecordStatus() != 0:
-        #     app.apps.cameraObj.stopRecord()
+        app.apps.cameraObj.stopCamera()
         time.sleep(3)
         os._exit(0)
+    return signum
 
 if __name__ == '__main__':
     Log.info("应用程序启动中......")

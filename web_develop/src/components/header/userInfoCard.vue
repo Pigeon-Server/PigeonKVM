@@ -1,10 +1,9 @@
 <script>
 import axios from "axios";
-import {useUserStore} from "@/store/userInfo";
 
 export default {
   name: "userInfoCard",
-  data: ()=>{
+  data() {
     return {
       username: "UserName",
       group: "未知",
@@ -12,15 +11,19 @@ export default {
     }
   },
   created() {
-    const UserStore = useUserStore()
-    this.username = UserStore.userName
-    this.group = UserStore.group
+    axios.get("/userInfo/api/getInfo").then(res=>{
+      const data = res.data.data
+      this.username = data.userName
+      this.group = data.group
+    }).catch(err=>{
+      console.log(err)
+    })
   }
 }
 </script>
 
 <template>
-  <v-list-item href="/userInfo" :title="username" :subtitle="group" :prepend-avatar="avatar"></v-list-item>
+  <v-list-item :to="{name: 'userInfo'}" :title="username" :subtitle="group" :prepend-avatar="avatar"></v-list-item>
 </template>
 
 <style scoped>

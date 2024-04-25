@@ -15,7 +15,7 @@ export default {
   data() {
     return {
       select_copy: null,
-      search: null,
+      search: "",
       list: [],
       currentPage: 1,
       maxPage: 1
@@ -54,6 +54,7 @@ export default {
   },
   watch: {
     search(val) {
+      console.log(val)
       this.loadPermissionGroups(val)
     }
   }
@@ -70,7 +71,7 @@ export default {
       variant="solo-filled"
       single-line
       hide-details
-      :model-value="search">
+      v-model="search">
     </v-text-field>
   </div>
   <v-table>

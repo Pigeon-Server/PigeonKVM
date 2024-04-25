@@ -6,9 +6,9 @@ import uuid
 import os
 import django
 
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ipkvm.settings")
 django.setup()
+
 
 # Create your models here.
 
@@ -26,22 +26,24 @@ class Users(models.Model):
     permission = models.ForeignKey("Permission_groups", on_delete=models.DO_NOTHING, null=True)
     disable = models.BooleanField("是否禁用", default=False, null=True)
 
-# 权限组
+
 class Permission_groups(models.Model):
+    """权限组列表"""
     id = models.AutoField(primary_key=True, unique=True)
     name = models.CharField("权限组名", max_length=30, unique=True)
     creator = models.ForeignKey("Users", on_delete=models.DO_NOTHING, null=True)
     createdAt = models.DateTimeField("创建时间", auto_now_add=True)
-    all = models.BooleanField("所有权限", default=False, null=True)
-    viewDevice = models.BooleanField("查看设备", default=False, null=True)
-    controllingDevice = models.BooleanField("控制设备", default=False, null=True)
-    changeDevicePowerState = models.BooleanField("开关机", default=False, null=True)
-    changeSettings = models.BooleanField("更改设置", default=False, null=True)
-    manageUsers = models.BooleanField("管理用户", default=False, null=True)
-    managePermissionGroups = models.BooleanField("管理权限组", default=False, null=True)
-    viewAudit = models.BooleanField("查看审计内容", default=False, null=True)
-    editAudit = models.BooleanField("编辑审计", default=False, null=True)
-    disable = models.BooleanField("是否禁用", default=False, null=True)
+    permissions = models.ManyToManyField('Permission_Item', related_name='groups')
+    disable = models.BooleanField("是否禁用", null=True)
+
+
+class Permission_Item(models.Model):
+    """权限列表"""
+    id = models.AutoField("权限项ID", primary_key=True, unique=True)
+    permission = models.CharField("权限名", max_length=30, unique=True)
+    description = models.CharField("权限项介绍", max_length=100, null=True)
+    translate = models.CharField("权限翻译", max_length=30, unique=True, null=True)
+
 
 # 审计
 class Audit(models.Model):
@@ -52,6 +54,7 @@ class Audit(models.Model):
     module = models.CharField("模块", max_length=256)
     content = models.CharField("数据", max_length=4096)
 
+
 # 系统日志
 class System_Log(models.Model):
     id = models.AutoField(primary_key=True, unique=True)
@@ -60,13 +63,14 @@ class System_Log(models.Model):
     module = models.CharField("模块", max_length=256)
     content = models.CharField("日志内容", max_length=1024)
 
+
 # 访问日志
 class Access_Log(models.Model):
     id = models.AutoField(primary_key=True, unique=True)
     user = models.ForeignKey("Users", on_delete=models.DO_NOTHING)
     ip = models.GenericIPAddressField("IP地址", null=True)
     time = models.DateTimeField("操作时间", auto_now_add=True)
-    module = models.CharField("访问的模块", max_length=512, unique=True)
+    module = models.CharField("访问的模块", max_length=512)
 
 
 # 文件修改日志

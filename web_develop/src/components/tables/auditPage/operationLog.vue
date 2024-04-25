@@ -2,7 +2,7 @@
 import axios from "axios";
 
 export default {
-  name: "audit_table",
+  name: "operationLog_table",
   data:()=>{
     return {
       currentPage: 1,

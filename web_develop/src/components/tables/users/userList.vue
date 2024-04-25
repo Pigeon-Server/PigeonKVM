@@ -1,5 +1,6 @@
 <script>
 import axios from "axios";
+import user from "@/scripts/admin/users"
 import message from "@/scripts/utils/message";
 
 export default {
@@ -32,6 +33,9 @@ export default {
           })
         }
       })
+    },
+    updateUserStatus(uid, status) {
+      user.updateUserInfo(this, uid, {disable: status})
     }
   }
 }
@@ -57,7 +61,7 @@ export default {
           权限
         </th>
         <th class="text-left">
-          状态
+          启用
         </th>
         <th class="text-left">
           创建时间
@@ -80,7 +84,10 @@ export default {
         <td>{{ item.realName ? item.realName : "未设置" }}<v-icon icon="mdi:mdi-square-edit-outline" size="x-small" @click="$emit('action', item.uid, 'editRealName')"></v-icon></td>
         <td>{{item.email ? item.email : "未设置"}}<v-icon icon="mdi:mdi-square-edit-outline" size="x-small" @click="$emit('action', item.uid, 'editEmail')"></v-icon></td>
         <td>{{ item.permission_name ? item.permission_name : "无权限" }}<v-icon icon="mdi:mdi-square-edit-outline" size="x-small" @click="$emit('action', item.uid, 'editPermission')"></v-icon></td>
-        <td>{{ item.disable ? "已禁用" : "已启用" }}<v-icon icon="mdi:mdi-square-edit-outline" size="x-small" @click="$emit('action', item.uid, 'editStatus')"></v-icon></td>
+        <td>
+          <input type='checkbox' :checked="!item.disable" @change="updateUserStatus(item.uid, !$event.target.checked)">
+<!--          {{ item.disable ? "" : "<input type='checkbox' checked>" }}<v-icon icon="mdi:mdi-square-edit-outline" size="x-small" @click="$emit('action', item.uid, 'editStatus')"></v-icon>-->
+        </td>
         <td>{{ item.createdAt ? item.createdAt : "未知" }}</td>
         <td>{{ item.lastLoginTime ? `${item.lastLoginTime}（ip:${item.lastLoginIP}）` : "未登录" }} </td>
         <td>

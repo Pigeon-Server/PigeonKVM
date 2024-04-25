@@ -6,11 +6,12 @@ import re
 
 from django.http import FileResponse
 from app.models import Users, Permission_groups
-from app.util.PasswordTools import PasswordToMd5
+from app.util.PasswordTools import PasswordToMd5, verifyPasswordRules
 from app.util.Request import RequestLoadJson, getClientIp
 from app.util.Response import ResponseJson
 from app.util.logger import Log
 from app.util.DataBaseTools import writeAudit, writeAccessLog, writeFileChangeLog
+from app.util.permission import groupPermission
 
 
 @Log.catch
@@ -35,7 +36,7 @@ def setPassword(req):
                 return ResponseJson({"status": -1, "msg": "参数不完整"})
             User = Users.objects.filter(id=userId).first()
             Log.debug(User.id)
-            if not re.match('^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{6,16}', newPassword):
+            if not verifyPasswordRules(newPassword):
                 return ResponseJson({"status": 0, "msg": "新密码格式不合规（至少6字符，必须含有数字，小写字母，大写字母，特殊字符）"})
             if oldPassword != User.password:
                 return ResponseJson({"status": 0, "msg": "原密码不正确"})
@@ -59,25 +60,16 @@ def getUserInfo(req):
     userId = req.session.get("userID")
     if userId:
         User = Users.objects.filter(id=userId).first()
-        User_Permission = Permission_groups.objects.filter(id=User.permission_id).first() if User.permission_id else None
+        User_Permission = groupPermission(User.permission_id) if User.permission_id else None
+
         writeAccessLog(userId, getClientIp(req), "Get User Info")
         return ResponseJson({"status": 1, "data": {
             "id": User.id,
             "userName": User.userName,
             "realName": User.realName,
             "email": User.email,
-            "group": User_Permission.name if User_Permission else None,
-            "permissions": {
-                "all": User_Permission.all if User_Permission else False,
-                "viewDevice": User_Permission.viewDevice if User_Permission else False,
-                "controllingDevice": User_Permission.controllingDevice if User_Permission else False,
-                "changeDevicePowerState": User_Permission.changeDevicePowerState if User_Permission else False,
-                "changeSettings": User_Permission.changeSettings if User_Permission else False,
-                "manageUsers": User_Permission.manageUsers if User_Permission else False,
-                "managePermissionGroups": User_Permission.managePermissionGroups if User_Permission else False,
-                "viewAudit": User_Permission.viewAudit if User_Permission else False,
-                "editAudit": User_Permission.editAudit if User_Permission else False
-            }
+            "group": User_Permission.get_group_name() if User_Permission else None,
+            "permissions": User_Permission.get_permissions_dict() if User_Permission else None,
         }})
     else:
         return ResponseJson({"status": -1, "msg": "未登录"})

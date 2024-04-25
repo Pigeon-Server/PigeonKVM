@@ -1,5 +1,5 @@
 from app.util.logger import Log
-from app.models import Users, Audit, System_Log, Access_Log, FileChange_Log
+from app.models import Users, Permission_groups, Audit, System_Log, Access_Log, FileChange_Log
 
 
 # 获取最大页数
@@ -23,11 +23,11 @@ def getPageContent(model, page: int, size: int):
     :return:
     """
     if getMaxPage(model.count(), size) >= page:
-        pageStart = size * (page-1)
+        pageStart = size * (page - 1)
         pageEnd = pageStart + size
         return model.values()[pageStart:pageEnd]
     else:
-        return model.values()[model.count()-size if not model.count()-size < 0 else 0:model.count()]
+        return model.values()[model.count() - size if not model.count() - size < 0 else 0:model.count()]
 
 
 # 写访问日志
@@ -44,7 +44,7 @@ def writeAccessLog(user_id, ip: str, module: str):
 
 # 写系统日志
 @Log.catch
-def writeSystemLog(level: int, module:str, content:str):
+def writeSystemLog(level: int, module: str, content: str):
     """
     :param level: 日志等级
     :param module: 模块
@@ -52,6 +52,7 @@ def writeSystemLog(level: int, module:str, content:str):
     :return:
     """
     System_Log.objects.create(level=level, module=module, content=content)
+
 
 # 写审计内容
 @Log.catch
@@ -64,6 +65,7 @@ def writeAudit(user_id: int, action: str, module: str, content: str):
     """
     Audit.objects.create(user=Users.objects.filter(id=user_id).first(), action=action, module=module, content=content)
 
+
 # 写文件记录
 @Log.catch
 def writeFileChangeLog(user_id: int, action: str, filepath: str):
@@ -73,3 +75,6 @@ def writeFileChangeLog(user_id: int, action: str, filepath: str):
     :param filepath: 目标
     """
     FileChange_Log.objects.create(user=Users.objects.filter(id=user_id).first(), action=action, filepath=filepath)
+
+
+

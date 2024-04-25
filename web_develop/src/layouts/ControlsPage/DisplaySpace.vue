@@ -205,10 +205,9 @@ export default {
       return  Math.trunc(coordinates / scale)
     }
   },
-  created() {
-    this.connectWebSocket()
-  },
   mounted() {
+    this.connectWebSocket()
+    console.log("mounted")
     const displayImage = document.querySelector("#displayImage");
     let onMouseMoveEvent,onMouseLeaveEvent = false
     let that = this
@@ -389,6 +388,10 @@ export default {
     window.document.body.onmouseover =  function (event){
       that.mouseOnConsole = (event.target?.id === displayImage.id)
     }
+  },
+  unmounted() {
+    console.log("unmounted")
+    this.ws.close()
   }
 }
 </script>

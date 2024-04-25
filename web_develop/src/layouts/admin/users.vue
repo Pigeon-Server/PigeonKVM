@@ -2,15 +2,17 @@
 import userList from "@/components/tables/users/userList.vue";
 import axios from "axios";
 import message from "@/scripts/utils/message";
-import EditUserStatus from "@/components/dialogs/users/editUserStatus.vue";
 
-import user_tools from "@/scripts/admin/users"
 import EditUserPermission from "@/components/dialogs/users/editUserPermission.vue";
 import NewUser from "@/components/dialogs/users/newUser.vue";
+import EditEmail from "@/components/dialogs/users/editEmail.vue";
+import EditRealName from "@/components/dialogs/users/editRealName.vue";
+import EditUsername from "@/components/dialogs/users/editUsername.vue";
+import ResetPassword from "@/components/dialogs/users/resetPassword.vue"
 
 export default {
   name: "users",
-  components: {NewUser, EditUserPermission, EditUserStatus, userList},
+  components: {EditUsername, EditRealName, EditEmail, NewUser, EditUserPermission, ResetPassword, userList},
   data() {
     return {
       search: "",
@@ -20,11 +22,23 @@ export default {
       newUser: {
         flag: false,
       },
-      editUserStatus: {
+      editUserName: {
+        flag: false,
+        uid: null
+      },
+      editUserRealName: {
         flag: false,
         uid: null
       },
       editUserPermission: {
+        flag: false,
+        uid: null
+      },
+      editUserEmail: {
+        flag: false,
+        uid: null
+      },
+      resetPassword: {
         flag: false,
         uid: null
       }
@@ -72,64 +86,32 @@ export default {
        * 编辑用户
        */
       switch (action) {
-        // // 编辑用户名
-        // case "editUsername":
-        //   this.getUserInfo(uid).then(res=>{
-        //     this.openInputDialog(uid, "更新用户名", "", res.data.data.userName, (uid, input)=>{
-        //       this.updateUserInfo(uid,{userName: input})
-        //       this.getUserList(this.search, this.currentPage)
-        //     }, "text")
-        //   })
-        //   break
-        // // 编辑真实姓名
-        // case "editRealName":
-        //   this.getUserInfo(uid).then(res=>{
-        //     this.openInputDialog(uid, "更新姓名", "", res.data.data.realName, (uid, input)=>{
-        //       this.updateUserInfo(uid, {realName: input})
-        //       this.getUserList(this.search, this.currentPage)
-        //     }, "text")
-        //   })
-        //   break
-        // // 编辑邮箱
-        // case "editEmail":
-        //   this.getUserInfo(uid).then(res=>{
-        //     this.openInputDialog(uid, "更新邮箱", "", res.data.data.email, (uid, input)=>{
-        //       this.updateUserInfo(uid, {email: input})
-        //       this.getUserList(this.search, this.currentPage)
-        //     }, "email")
-        //   })
-        //   break
-        // // 编辑权限
+        // 编辑用户名
+        case "editUsername":
+          this.editUserName.uid = uid
+          this.editUserName.flag = true
+          break
+        // 编辑真实姓名
+        case "editRealName":
+          this.editUserRealName.uid = uid
+          this.editUserRealName.flag = true
+          break
+        // 编辑邮箱
+        case "editEmail":
+          this.editUserEmail.uid = uid
+          this.editUserEmail.flag = true
+          break
+        // 编辑权限
         case "editPermission":
           this.editUserPermission.uid = uid
           this.editUserPermission.flag = true
           break
-        case "editStatus":
-          this.editUserStatus.uid = uid
-          this.editUserStatus.flag = true
+        // 重置密码
+        case "resetPassword":
+          this.resetPassword.uid = uid
+          this.resetPassword.flag = true
           break
-        // // 重置密码
-        // case "resetPassword":
-        //   this.getUserInfo(uid).then(res=>{
-        //     this.openInputDialog(uid, "设置新密码", "至少6字符，必须含有数字，小写字母，大写字母，特殊字符", null,(uid, input)=>{
-        //       this.updateUserInfo(uid, {password: input})
-        //       this.getUserList(this.search, this.currentPage)
-        //     }, "password")
-        //   })
-        //   break
-        // // 删除用户
-        // case "delUser":
-        //   break
       }
-    },
-    closeEditUserStatusWindow() {
-      /**
-       * 关闭编辑用户状态窗口
-       * @type {null}
-       */
-      this.editUserStatus.uid = null
-      this.editUserStatus.flag = false
-      this.getUserList()
     },
     closeEditUserPermissionWindow() {
       /**
@@ -139,7 +121,46 @@ export default {
       this.editUserPermission.flag = false
       this.getUserList()
     },
+    closeEditUserEmailWindow() {
+      /**
+       * 关闭编辑用户邮箱窗口
+       * @type {null}
+       */
+      this.editUserEmail.uid = null
+      this.editUserEmail.flag = false
+      this.getUserList()
+    },
+    closeEditUserNameWindow() {
+      /**
+       * 关闭编辑用户名窗口
+       * @type {null}
+       */
+      this.editUserName.uid = null
+      this.editUserName.flag = false
+      this.getUserList()
+    },
+    closeEditUserRealNameWindow() {
+      /**
+       * 关闭编辑用户真实姓名窗口
+       * @type {null}
+       */
+      this.editUserRealName.uid = null
+      this.editUserRealName.flag = false
+      this.getUserList()
+    },
+    closeResetPasswordWindow() {
+      /**
+       * 关闭重置密码窗口
+       * @type {null}
+       */
+      this.resetPassword.uid = null
+      this.resetPassword.flag = false
+    },
     closeNewUserWindow() {
+      /**
+       * 关闭新建用户窗口
+       * @type {boolean}
+       */
       this.newUser.flag = false
       this.getUserList()
     }
@@ -190,14 +211,26 @@ export default {
   ></v-pagination>
 
   <div class="dialogs">
-    <edit-user-status
-      :uid="editUserStatus.uid"
-      :flag="editUserStatus.flag"
-      @close="closeEditUserStatusWindow()"/>
     <edit-user-permission
     :uid="editUserPermission.uid"
     :flag="editUserPermission.flag"
     @close="closeEditUserPermissionWindow()"/>
+    <edit-email
+      :uid="editUserEmail.uid"
+      :flag="editUserEmail.flag"
+      @close="closeEditUserEmailWindow()" />
+    <edit-real-name
+      :uid="editUserRealName.uid"
+      :flag="editUserRealName.flag"
+      @close="closeEditUserRealNameWindow()"/>
+    <edit-username
+      :uid="editUserName.uid"
+      :flag="editUserName.flag"
+      @close="closeEditUserNameWindow()"/>
+    <reset-password
+      :uid="resetPassword.uid"
+      :flag="resetPassword.flag"
+      @close="closeResetPasswordWindow()"/>
     <new-user
       :flag="newUser.flag"
       @close="closeNewUserWindow()"/>

@@ -1,14 +1,14 @@
-from django.test import TestCase
+from django.core.management.base import BaseCommand
 from app.models import *
-from app.util.DataBaseTools import *
-from util.PasswordTools import PasswordToMd5, GeneratePassword
-from util.permission import *
+from app.util.logger import Log
+from app.util.PasswordTools import GeneratePassword, PasswordToMd5
 
 
-# Create your tests here.
+class Command(BaseCommand):
+    help = 'Creates initial data'
 
-class AppTest(TestCase):
-    def setUp(self):
+    def handle(self, *args, **options):
+        Log.info("开始初始化数据库~")
         PermissionItem = [
             {
                 'id': 1,
@@ -68,6 +68,7 @@ class AppTest(TestCase):
 
         for item in PermissionItem:
             Permission_Item.objects.get_or_create(**item)
+        Log.success("权限项初始化完成")
 
         all = Permission_Item.objects.get(id=1)
         viewDevice = Permission_Item.objects.get(id=2)
@@ -134,6 +135,7 @@ class AppTest(TestCase):
             if status:
                 for permission in item['permissions']:
                     group.permissions.add(permission)
+        Log.success("权限组初始化完成")
 
         DefaultSetting = [
             {
@@ -236,6 +238,7 @@ class AppTest(TestCase):
 
         for item in DefaultSetting:
             Settings.objects.get_or_create(**item)
+        Log.success("初始化设置成功")
 
         defaultPassword = GeneratePassword(16)
 
@@ -254,28 +257,6 @@ class AppTest(TestCase):
             password=adminUser['password'],
             permission_id=Permission_Item.objects.filter(id=1).first().id
         )
+        Log.success("用户初始化成功")
 
-    def test_getGroupPermission(self):
-        print(groupPermission(1).get_permissions_list())
-        # print(groupPermission(1000).get_permissions_list())
-
-    def test_check_group_permission(self):
-        gp = groupPermission(1)
-        print(gp.get_permissions_list())
-        print(gp.check_group_permission("all"))
-        print(gp.check_group_permission("aaaa"))
-
-    def test_get_all_permission_items(self):
-        print(get_all_permission_items())
-
-    def test_get_permissions_dict(self):
-        gp = groupPermission(3)
-        print(gp.get_permissions_dict())
-
-    def test_update_permissions_list(self):
-        gp = groupPermission(1)
-        gp.update_permissions_list(["changeDevicePowerState", "editAudit"])
-        print(gp.get_permissions_dict())
-
-    def test_get_all_permission_item_info(self):
-        print(get_all_permission_item_info())
+        print("*"*10+"默认账户"+"*"*10+"\n"+f"用户名：{adminUser['username']}\n密码：{defaultPassword}")

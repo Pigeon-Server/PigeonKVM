@@ -83,17 +83,31 @@ export default {
     >
       <td>{{ item.id }}</td>
       <td>{{ item.name }}
-        <v-icon icon="mdi:mdi-square-edit-outline" size="x-small" @click="$emit('action','rename', item.id)"></v-icon>
+        <v-icon
+          icon="mdi:mdi-square-edit-outline"
+          size="x-small"
+          @click="$emit('action','rename', item.id)"/>
       </td>
       <td>{{ item.creator ? item.creator : "未知" }}</td>
       <td>{{ item.createdAt ? item.createdAt : "未知" }}</td>
       <td>{{ item.disable ? "已禁用" : "已启用" }}
-        <v-icon icon="mdi:mdi-square-edit-outline" size="x-small"
-                @click="$emit('action','update_status', item.id)"></v-icon>
+        <v-icon
+          icon="mdi:mdi-square-edit-outline"
+          size="x-small"
+          @click="$emit('action','update_status', item.id)"/>
       </td>
       <td>
-        <v-btn size="small" @click="$emit('action','edit', item.id)">编辑</v-btn>
-        <v-btn color="error" size="small" @click="delGroup(item.id)">删除</v-btn>
+        <v-btn
+          size="small"
+          @click="$emit('action','edit', item.id)">
+          编辑
+        </v-btn>
+        <v-btn
+          color="error"
+          size="small"
+          @click="delGroup(item.id)">
+          删除
+        </v-btn>
       </td>
     </tr>
     </tbody>

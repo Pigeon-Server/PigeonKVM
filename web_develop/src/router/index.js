@@ -5,7 +5,6 @@ import UserInfo from "@/views/UserInfo.vue";
 import controlPage from "@/views/Control.vue"
 import userManagementPage from "@/views/admin/User.vue"
 import permissionManagementPage from "@/views/admin/Permission.vue"
-// import permissionManagementPage_new from "@/layouts/admin/PermissionGroup/PermissionGroup.vue"
 import auditAndLoggerPage from "@/views/admin/Audit.vue"
 import fileManagementPage from "@/views/Files.vue"
 import configPage from "@/views/admin/Config.vue"
@@ -19,6 +18,7 @@ const routes = [
   // 登录
   {
     path: '/login',
+    name: "login",
     component: login,
   },
   // 控制
@@ -29,7 +29,7 @@ const routes = [
   // core 无机器列表-直接进入控制页面
   {
     path: '/',
-    // component:
+    name: "control",
     components: {
       default: controlPage,
       appBarBtn: appbar_controlPage
@@ -38,7 +38,7 @@ const routes = [
   // 个人信息设置
   {
     path: '/userInfo',
-    // component:
+    name: "userInfo",
     components: {
       default: UserInfo,
     }
@@ -46,6 +46,7 @@ const routes = [
   // 管理 - 用户管理
   {
     path: "/admin/users",
+    name: "userManagement",
     components: {
       default: userManagementPage,
     }
@@ -53,6 +54,7 @@ const routes = [
   // 管理 - 权限管理
   {
     path: "/admin/permission",
+    name: "permissionManagement",
     components: {
       default: permissionManagementPage,
     }
@@ -60,6 +62,7 @@ const routes = [
   // 管理 - 审计与日志
   {
     path: "/admin/audit",
+    name: "audit",
     components: {
       default: auditAndLoggerPage,
       appBarBtn: appbar_default
@@ -68,6 +71,7 @@ const routes = [
   // u盘文件管理
   {
     path: "/files",
+    name: "files",
     components: {
       default: fileManagementPage,
       appBarBtn: appbar_default
@@ -76,6 +80,7 @@ const routes = [
   // 配置文件编辑
   {
     path: "/admin/settings",
+    name: "settings",
     components: {
       default: configPage,
       // appBarBtn: appbar_default
@@ -84,6 +89,7 @@ const routes = [
   // 关于
   {
     path: "/about/",
+    name: "about",
     component:aboutPage
   },
   // 错误

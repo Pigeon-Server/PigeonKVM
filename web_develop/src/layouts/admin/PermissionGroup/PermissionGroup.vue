@@ -2,10 +2,12 @@
 import group_list from "@/components/tables/permissionGroup/groupList"
 import axios from "axios";
 import NewGroup from "@/components/dialogs/permissionGroup/newGroup";
+import EditGroupInfo from "@/components/dialogs/permissionGroup/editGroupInfo.vue";
+import EditGroupName from "@/components/dialogs/permissionGroup/editGroupName.vue";
 
 export default {
   name: "PermissionGroup",
-  components: {NewGroup, group_list},
+  components: {EditGroupName, EditGroupInfo, NewGroup, group_list},
   data: () => {
     return {
       currentPage: 1,
@@ -14,6 +16,14 @@ export default {
       permissionGroups: [],
       flag: {
         newGroup: false
+      },
+      editGroupPermission: {
+        flag: false,
+        gid: null
+      },
+      editGroupName: {
+        flag: false,
+        gid: null,
       }
       // newPermissionGroupDialog: {
       //   flag: false,
@@ -110,26 +120,6 @@ export default {
         console.warn("当前已有开启中的输入框")
       }
     },
-    // 获取权限列表
-    getPermissionList() {
-      /**
-       * 获取权限列表
-       */
-      return axios.get("/admin/api/getPermissionList").catch(err => {
-        console.error(err)
-        this.showApiErrorMsg(err.message)
-      })
-    },
-    // 获取权限组信息
-    getPermissionGroupInfo(groupId) {
-      /**
-       * 获取权限组数据
-       */
-      return axios.post("/admin/api/getPermissionGroupInfo", {id: groupId}).catch(err => {
-        console.error(err)
-        this.showApiErrorMsg(err.message)
-      })
-    },
     // 动作
     action(action, groupId = null) {
       /**
@@ -155,14 +145,8 @@ export default {
           /**
            * 重命名
            */
-          this.getPermissionGroupInfo(groupId).then(res => {
-            const apiStatus = res.data.status
-            if (apiStatus === 1) {
-              this.openInputDialog(groupId, "更改权限组组名", "请输入新组名", res.data.data.name, this.rename)
-            } else {
-              this.showApiErrorMsg(res.data.msg, apiStatus)
-            }
-          })
+          this.editGroupName.gid = groupId
+          this.editGroupName.flag = true
           break
         case "update_status":
           /**
@@ -183,34 +167,9 @@ export default {
           /**
            * 编辑权限组
            */
-          this.getPermissionGroupInfo(groupId).then(res => {
-            const apiStatus = res.data.status
-            if (apiStatus === 1) {
-              this.restore_init("editPermissionGroupDialog")
-              const groupInfo = res.data.data
-              this.editPermissionGroupDialog.gid = groupId
-              this.editPermissionGroupDialog.name = groupInfo.name
-              this.editPermissionGroupDialog.status = !groupInfo.disable
-              for (const item in groupInfo.Permission) {
-                if (groupInfo.Permission[item] === true) {
-                  this.editPermissionGroupDialog.selected.push(item)
-                }
-              }
-              this.getPermissionList().then(res => {
-                const apiStatus = res.data.status
-                if (apiStatus === 1) {
-                  this.editPermissionGroupDialog.permissionList = res.data.data
-                  this.editPermissionGroupDialog.flag = true
-                  console.log(this.editPermissionGroupDialog)
-                } else {
-                  this.showApiErrorMsg(res.data.msg, apiStatus)
-                  this.restore_init("editPermissionGroupDialog")
-                }
-              })
-            } else {
-              this.showApiErrorMsg(res.data.msg, apiStatus)
-            }
-          })
+          this.editGroupPermission.gid = groupId
+          console.log(this.editGroupPermission.gid)
+          this.editGroupPermission.flag = true
           break
         case "del":
           /**
@@ -290,55 +249,15 @@ export default {
         this.showApiErrorMsg(err.message)
       })
     },
-    //编辑权限组
-    editPermissionGroup() {
-      if (this.editPermissionGroupDialog.name.length < 3 && this.editPermissionGroupDialog.name.length > 20) {
-        this.$notify.create({
-          text: `权限组名长度应在3-20个字符`,
-          level: 'error',
-          location: 'bottom right',
-          notifyOptions: {
-            "close-delay": 3000
-          }
-        })
-        return
-      }
-      if (this.editPermissionGroupDialog.selected === []) {
-        this.$notify.create({
-          text: `你好像啥权限都没选择呢~`,
-          level: 'error',
-          location: 'bottom right',
-          notifyOptions: {
-            "close-delay": 3000
-          }
-        })
-        return
-      }
-      let permission = {}
-      console.log(this.editPermissionGroupDialog.permissionList)
-      for (const permissionKey in this.editPermissionGroupDialog.permissionList) {
-        permission[permissionKey] = this.editPermissionGroupDialog.selected.includes(permissionKey)
-        console.log(permissionKey, this.editPermissionGroupDialog.selected.includes(permissionKey))
-      }
-      axios.post("/admin/api/setPermissionGroup", {
-        id: this.editPermissionGroupDialog.gid,
-        data: {
-          newName: this.editPermissionGroupDialog.name,
-          disable: !this.editPermissionGroupDialog.status,
-          permissions: permission
-        }
-      }).then(res => {
-        const apiStatus = res.data.status
-        if (apiStatus === 1) {
-          this.restore_init("editPermissionGroupDialog")
-          this.getPermissionGroupList()
-        } else {
-          this.showApiErrorMsg(res.data.msg, apiStatus)
-        }
-      }).catch(err => {
-        console.error(err)
-        this.showApiErrorMsg(err.message)
-      })
+    closeEditGroupPermission() {
+      this.editGroupPermission.gid = null
+      this.editGroupPermission.flag = false
+      this.getPermissionGroupList(this.search, this.currentPage)
+    },
+    closeEditGroupName() {
+      this.editGroupName.gid = null
+      this.editGroupName.flag = false
+      this.getPermissionGroupList(this.search, this.currentPage)
     }
   },
   created() {
@@ -377,9 +296,27 @@ export default {
       v-model="search">
     </v-text-field>
   </div>
-  <group_list @action="action" @updateData="getPermissionGroupList(search, currentPage)" :permission-group-list="permissionGroups"/>
+  <group_list
+    @action="action"
+    @updateData="getPermissionGroupList(search, currentPage)"
+    :permission-group-list="permissionGroups"
+  />
   <div class="dialogs">
-    <new-group :open-window="flag.newGroup" @success="getPermissionGroupList();flag.newGroup = false" @exit="flag.newGroup = false"/>
+    <new-group
+      :open-window="flag.newGroup"
+      @success="getPermissionGroupList();flag.newGroup = false"
+      @exit="flag.newGroup = false"
+    />
+    <edit-group-info
+      :gid="editGroupPermission.gid"
+      :flag="editGroupPermission.flag"
+      @close="closeEditGroupPermission()"
+    />
+    <edit-group-name
+      :gid="editGroupName.gid"
+      :flag="editGroupName.flag"
+      @close="closeEditGroupName()"
+    />
   </div>
   <v-pagination
     v-model="currentPage"

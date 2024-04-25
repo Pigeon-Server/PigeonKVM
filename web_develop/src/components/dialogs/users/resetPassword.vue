@@ -1,10 +1,9 @@
 <script>
+import user from "@/scripts/admin/users"
 import InputDialog from "@/components/dialogs/inputDialog.vue";
-import permission from "@/scripts/admin/permission";
-import message from "@/scripts/utils/message";
 
 export default {
-  name: "EditGroupName",
+  name: "resetPassword",
   components: {InputDialog},
   emits: ['close'],
   props: {
@@ -12,7 +11,7 @@ export default {
       type: Boolean,
       required: true
     },
-    gid: {
+    uid: {
       type: Number,
       required: true
     }
@@ -20,31 +19,25 @@ export default {
   data() {
     return {
       value: null,
+      newValue: null
     }
+  },
+  mounted() {
+    this.newValue = this.value
   },
   watch: {
     flag(val) {
       if (!val) {
         this.value = null
-      } else {
-        permission.getGroupInfo(this, this.gid).then(res => {
-          const apiStatus = res.data.status
-          if (apiStatus === 1) {
-            const groupInfo = res.data.data
-            this.value = groupInfo.name
-          } else {
-            message.showApiErrorMsg(this, res.data.msg, apiStatus)
-          }
-        })
       }
-    },
+    }
   },
   methods: {
     submit() {
       /**
        * 提交
        */
-      permission.editGroup(this, this.gid, {newName: this.value}).then(() => {
+      user.updateUserInfo(this, this.uid, {password: this.value}).then(()=>{
         this.close()
       })
     },
@@ -57,13 +50,14 @@ export default {
 
 <template>
   <input-dialog
-    title="编辑权限组名"
+    title="重置用户密码"
+    label="至少6字符，必须含有数字，小写字母，大写字母，特殊字符"
+    type="password"
     :flag="flag"
     :value="value"
     @close="close"
-    @update="args => {this.value = args}"
-    @confirm="submit()"
-  />
+    @update="args => {value = args}"
+    @confirm="submit()"/>
 </template>
 
 <style scoped>

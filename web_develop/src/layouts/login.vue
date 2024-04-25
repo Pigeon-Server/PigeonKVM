@@ -56,7 +56,7 @@ export default {
                 switch (data.status) {
                     case 1:
                       useUserStore().getUserInfo().then(()=>{
-                        location.href = "/"
+                        this.$router.push({name:"control"})
                       })
                       break;
                     default:

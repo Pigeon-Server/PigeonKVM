@@ -7,7 +7,7 @@ import 'cropperjs/dist/cropper.css';
 
 export default {
   name: "editUserInfo",
-  data: ()=>{
+  data: () => {
     return {
       id: "",
       userName: "",
@@ -23,22 +23,29 @@ export default {
     }
   },
   mounted() {
-    const userStore = useUserStore()
-    this.id = userStore.id
-    this.userName = userStore.userName
-    this.realName = userStore.realName
-    this.email = userStore.email
-    this.group = userStore.group
+   this.getUserinfo()
   },
   methods: {
+    getUserinfo() {
+      axios.get("/userInfo/api/getInfo").then(res => {
+        const data = res.data.data
+        this.id = data.id;
+        this.userName = data.userName
+        this.realName = data.realName
+        this.email = data.email
+        this.group = data.group
+      }).catch(err => {
+        console.log(err)
+      })
+    },
     saveUserInfo() {
-      axios.post("userInfo/api/editInfo",{
+      axios.post("userInfo/api/editInfo", {
         data: {
           userName: this.userName,
           realName: this.realName,
           email: this.email
         }
-      }).then(res=>{
+      }).then(res => {
         const apiStatus = res.data.status
         if (apiStatus === 1) {
           const userStore = useUserStore()
@@ -61,7 +68,7 @@ export default {
             }
           })
         }
-      }).catch(err=>{
+      }).catch(err => {
         this.$notify.create({
           text: `API错误：${err.message}`,
           level: 'error',
@@ -87,20 +94,20 @@ export default {
           const previewImage = document.getElementById('previewImage');
           console.log(previewImage)
           previewImage.src = URL.createObjectURL(this.uploadAvatar.file);
-            // 初始化 cropper.js
-            this.uploadAvatar.cropper = new Cropper(previewImage, {
-              aspectRatio: 1, // 固定裁剪框的宽高比
-              viewMode: 1,    // 显示裁剪框，允许移动图片
-              dragMode: 'move', // 设置拖动模式为移动图片
-              autoCropArea: 1,  // 初始裁剪框占图像的比例
-              responsive: true,  // 支持响应式布局
-              cropBoxResizable: false, // 禁止用户调整裁剪框的宽高
-              rotatable: false
-            });
-            this.uploadAvatar.cropper.setCropBoxData({
-              width:512,
-              height:512
-            })
+          // 初始化 cropper.js
+          this.uploadAvatar.cropper = new Cropper(previewImage, {
+            aspectRatio: 1, // 固定裁剪框的宽高比
+            viewMode: 1,    // 显示裁剪框，允许移动图片
+            dragMode: 'move', // 设置拖动模式为移动图片
+            autoCropArea: 1,  // 初始裁剪框占图像的比例
+            responsive: true,  // 支持响应式布局
+            cropBoxResizable: false, // 禁止用户调整裁剪框的宽高
+            rotatable: false
+          });
+          this.uploadAvatar.cropper.setCropBoxData({
+            width: 512,
+            height: 512
+          })
         })
       } else {
         this.uploadAvatar.flag = false
@@ -110,27 +117,30 @@ export default {
     async uploadAvatarImg() {
 
       async function calculateMD5(dataUrl) {
-      // 从 base64 数据中提取文件内容
-      const base64Content = dataUrl.split(',')[1];
+        // 从 base64 数据中提取文件内容
+        const base64Content = dataUrl.split(',')[1];
 
-      // 计算MD5哈希值
-      const spark = new SparkMD5.ArrayBuffer();
-      const buffer = Uint8Array.from(atob(base64Content), c => c.charCodeAt(0)).buffer;
-      spark.append(buffer);
-      const hash = spark.end();
+        // 计算MD5哈希值
+        const spark = new SparkMD5.ArrayBuffer();
+        const buffer = Uint8Array.from(atob(base64Content), c => c.charCodeAt(0)).buffer;
+        spark.append(buffer);
+        const hash = spark.end();
 
-      console.log('Image MD5 Hash:', hash);
-      return hash
-    }
+        console.log('Image MD5 Hash:', hash);
+        return hash
+      }
 
-      const imgBase64 = this.uploadAvatar.cropper.getCroppedCanvas({maxHeight:512,maxWidth:512}).toDataURL("image/webp",0.8)
+      const imgBase64 = this.uploadAvatar.cropper.getCroppedCanvas({
+        maxHeight: 512,
+        maxWidth: 512
+      }).toDataURL("image/webp", 0.8)
 
-      axios.post("/userInfo/api/uploadAvatar",{
+      axios.post("/userInfo/api/uploadAvatar", {
         data: {
           avatarImg: imgBase64,
           avatarHash: await calculateMD5(imgBase64)
         }
-      }).then(res=>{
+      }).then(res => {
         const apiStatus = res.data.status
         if (apiStatus === 1) {
           this.$notify.create({
@@ -142,7 +152,7 @@ export default {
             }
           })
           this.uploadAvatar.flag = false
-          this.avatarUrl="/userInfo/api/getAvatar?v"+Math.random()
+          this.avatarUrl = "/userInfo/api/getAvatar?v" + Math.random()
         } else {
           this.$notify.create({
             text: `API错误：${res.data.msg}(status:${apiStatus})`,
@@ -153,7 +163,7 @@ export default {
             }
           })
         }
-      }).catch(err=>{
+      }).catch(err => {
         this.$notify.create({
           text: `API错误：${err.message}`,
           level: 'error',
@@ -187,7 +197,8 @@ export default {
               <div class="editAvatar" @click="openAvatarUploader()">
                 <v-icon icon="mdi:mdi-pencil-outline"></v-icon>
                 <span>更换头像</span>
-                <input type="file" accept="image/*" id="uploadAvatar" @change="uploadAvatar.file = $event.target.files[0]" style="display: none;">
+                <input type="file" accept="image/*" id="uploadAvatar"
+                       @change="uploadAvatar.file = $event.target.files[0]" style="display: none;">
               </div>
             </v-row>
           </v-col>
@@ -263,39 +274,45 @@ export default {
 </template>
 
 <style scoped>
-  .editInfo .v-row>div {
-    width: 100%;
-  }
-  .userInfoEdit {
-    min-width: 300px;
-  }
-  .avatar {
-    width: 85%;
-    position: relative;
-  }
-  .editAvatar {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    border-radius: 50%;
-    background-color: rgba(0,0,0,.3);
-  }
-  .editAvatar .v-icon {
-    font-size: 30px;
-  }
-  .editAvatar span, .editAvatar .v-icon {
-    color: white;
-  }
-  .avatar:hover .editAvatar {
-    display: flex;
-  }
-  #previewImage {
-    //display: inline-block;
-    width: 100%;
-    max-height: 70vh;
-  }
+.editInfo .v-row > div {
+  width: 100%;
+}
+
+.userInfoEdit {
+  min-width: 300px;
+}
+
+.avatar {
+  width: 85%;
+  position: relative;
+}
+
+.editAvatar {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, .3);
+}
+
+.editAvatar .v-icon {
+  font-size: 30px;
+}
+
+.editAvatar span, .editAvatar .v-icon {
+  color: white;
+}
+
+.avatar:hover .editAvatar {
+  display: flex;
+}
+
+#previewImage {
+  width: 100%;
+  max-height: 70vh;
+}
 </style>
