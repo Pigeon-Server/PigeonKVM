@@ -15,8 +15,16 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/app" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/auth" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/control" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/middleware" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/setting" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/user_management" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/util" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/static" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/PCB" />
+      <excludeFolder url="file://$MODULE_DIR$/record" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

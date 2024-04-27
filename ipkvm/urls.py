@@ -19,13 +19,13 @@ from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
 
-import app.apis.auth as auth
+import auth.apis.auth as auth
 import app.apis.fileManager as fileManager
 import app.apis.control as control
 import app.apis.admin.users as users
 import app.apis.admin.permission as permission
 import app.apis.admin.auditAndLogger as auditAndLogger
-import app.apis.admin.settings as setting
+import setting.apis.settings as setting
 import app.apis.userInfo as userInfo
 
 urlpatterns = [

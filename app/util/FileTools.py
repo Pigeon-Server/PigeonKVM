@@ -7,7 +7,7 @@ import zipfile
 
 import chardet
 from datetime import datetime
-from app.util.logger import Log
+from util.logger import Log
 from app.util.DataBaseTools import writeFileChangeLog
 
 

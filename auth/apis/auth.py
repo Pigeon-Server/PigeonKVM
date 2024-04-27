@@ -1,14 +1,16 @@
 import datetime
 
-from app.util.Response import ResponseJson
-from app.util.Request import RequestLoadJson, getClientIp
-from app.util.PasswordTools import PasswordToMd5
-from app.util.logger import Log
-import app.util.Config as Config
-from app.util.DataBaseTools import writeAudit
+from django.apps import apps
 
+from util.Response import ResponseJson
+from util.Request import RequestLoadJson, getClientIp
+from app.util.PasswordTools import PasswordToMd5
+from util.logger import Log
+from app.util.DataBaseTools import writeAudit
+from setting.entity.Config import config
 from app.models import Users
 
+config: config = apps.get_app_config('setting').get_config()
 
 # 登录
 def AuthLogin(req):
@@ -23,7 +25,7 @@ def AuthLogin(req):
             if not user.disable:
                 req.session["user"] = user.userName
                 req.session["userID"] = user.id
-                req.session.set_expiry(int(Config.main_config.get("main").get("sessionExpiry")) * 60)
+                req.session.set_expiry(int(config.base.sessionExpiry) * 60)
                 Log.success(f"用户[{user.userName}]已登陆")
                 user.lastLoginIP = getClientIp(req)
                 user.lastLoginTime = datetime.datetime.now()

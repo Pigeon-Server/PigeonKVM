@@ -7,7 +7,7 @@ import os
 import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ipkvm.settings")
-django.setup()
+# django.setup()
 
 
 # Create your models here.
@@ -80,15 +80,6 @@ class FileChange_Log(models.Model):
     time = models.DateTimeField("操作时间", auto_now_add=True)
     action = models.CharField("动作", max_length=512)
     filepath = models.CharField("目标文件", max_length=4096)
-
-
-# 设置
-class Settings(models.Model):
-    id = models.AutoField(primary_key=True, unique=True)
-    Settings = models.CharField("设置项名", max_length=120, unique=True)
-    value = models.CharField("值", max_length=4096)
-    lastModifiedTime = models.DateTimeField("上次修改时间", null=True, auto_now=True)
-    lastModifiedUser = models.ForeignKey("Users", on_delete=models.DO_NOTHING, null=True)
 
 
 # 临时下载链接

@@ -1,6 +1,8 @@
+from django.apps import apps
 from django.core.management.base import BaseCommand
 from app.models import *
-from app.util.logger import Log
+from setting.models import Settings
+from util.logger import Log
 from app.util.PasswordTools import GeneratePassword, PasswordToMd5
 
 
@@ -137,7 +139,7 @@ class Command(BaseCommand):
                     group.permissions.add(permission)
         Log.success("权限组初始化完成")
 
-        DefaultSetting = [
+        defaultSetting = [
             {
                 'Settings': "base.record",
                 'value': True
@@ -236,7 +238,7 @@ class Command(BaseCommand):
             },
         ]
 
-        for item in DefaultSetting:
+        for item in defaultSetting:
             Settings.objects.get_or_create(**item)
         Log.success("初始化设置成功")
 

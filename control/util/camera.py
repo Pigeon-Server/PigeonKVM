@@ -215,9 +215,7 @@
 #         return packed_frame
 
 
-
-import json
-from time import time, sleep, strftime, localtime
+from time import sleep, strftime, localtime
 import cv2
 import os
 from copy import copy
@@ -225,16 +223,19 @@ from threading import Thread
 
 import msgpack
 from PIL import Image, ImageDraw, ImageFont
+from django.apps import apps
 
-import app.apis.WebSocket.control
-import app.util.Config as Config
+import control.webSocket.control as webSocket
+import setting.util.Config as config
 
 import numpy as np
 
-from app.util.logger import Log
+from util.logger import Log
 
 
 class camera:
+    # 应用配置
+    __app_setting = None
     # 采集卡
     __camera = None
     # 未处理的采集卡帧
@@ -259,29 +260,29 @@ class camera:
         "RecordVideo": 0
     }
 
-    def __init__(self, camera_id=0):
-        return
+    def __init__(self):
         Log.info("采集卡初始化中....")
+        self.__app_setting = apps.get_app_config("setting").get_config
 
         for i in range(0, 10):
-            self.__camera = cv2.VideoCapture(camera_id)
+            self.__camera = cv2.VideoCapture(self.__app_setting().base.camera)
 
             # 视频宽度
-            self.__camera.set(cv2.CAP_PROP_FRAME_WIDTH, Config.main_config.get("camera").get("width"))
+            self.__camera.set(cv2.CAP_PROP_FRAME_WIDTH, self.__app_setting().camera.width)
             # 视频高度
-            self.__camera.set(cv2.CAP_PROP_FRAME_HEIGHT, Config.main_config.get("camera").get("height"))
+            self.__camera.set(cv2.CAP_PROP_FRAME_HEIGHT, self.__app_setting().camera.height)
             # 视频格式
             self.__camera.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
             # 视频帧率
-            self.__camera.set(cv2.CAP_PROP_FPS, Config.main_config.get("camera").get("fps"))
+            self.__camera.set(cv2.CAP_PROP_FPS, self.__app_setting().camera.fps)
             # 视频亮度
-            self.__camera.set(10, Config.main_config.get("camera").get("brightness"))
+            self.__camera.set(10, self.__app_setting().camera.brightness)
             # 视频曝光
-            self.__camera.set(cv2.CAP_PROP_EXPOSURE, Config.main_config.get("camera").get("exposure"))
+            self.__camera.set(cv2.CAP_PROP_EXPOSURE, self.__app_setting().camera.exposure)
             # 饱和度
-            self.__camera.set(12, Config.main_config.get("camera").get("colorfulness"))
+            self.__camera.set(12, self.__app_setting().camera.colorfulness)
             # 色调
-            self.__camera.set(13, Config.main_config.get("camera").get("tonal"))
+            self.__camera.set(13, self.__app_setting().camera.tonal)
 
             if self.__camera.isOpened():
                 Log.info("采集卡启动成功")
@@ -316,11 +317,11 @@ class camera:
         grey_diff = cv2.absdiff(img1, img2)  # 计算两幅图的像素差
         change = np.average(grey_diff)
         # 当两幅图的差异大于给定的值后，认为画面有物体在动
-        if change > Config.main_config.get("camera").get("updateDisplayChange"):
-            if app.apis.WebSocket.control.links.get(self.__op):
+        if change > self.__app_setting().camera.updateDisplayChange:
+            if webSocket.links.get(self.__op):
                 try:
-                    app.apis.WebSocket.control.controlPageWebSocket.send(
-                        app.apis.WebSocket.control.links.get(self.__op),
+                    webSocket.control.send(
+                        webSocket.links.get(self.__op),
                         bytes_data=self.getDisplayFrame()
                     )
                 except Exception as e:
@@ -349,7 +350,7 @@ class camera:
                         self.__before = copy(self.__cameraFrame)
                         self.__flag = 0
 
-                    if (self.__after is not None and self.__before is not None) and (Config.main_config.get("main").get("record") is False or self.__op is not None):
+                    if (self.__after is not None and self.__before is not None) and (self.__app_setting().base.record is False or self.__op is not None):
                         Thread(target=self.__movingDetect, args=(self.__after, self.__before,), name="movingDetect").start()
             else:
                 sleep(0.5)
@@ -443,7 +444,7 @@ class camera:
         videoOut = cv2.VideoWriter(
             outputFileName,  # 输出文件名
             cv2.VideoWriter_fourcc(*'DIVX'),  # 编码器
-            Config.main_config.get("record").get("fps"),  # 输出帧率
+            self.__app_setting().record.fps,  # 输出帧率
             (int(self.__camera.get(cv2.CAP_PROP_FRAME_WIDTH)), int(self.__camera.get(cv2.CAP_PROP_FRAME_HEIGHT)))
         )  # 写入视频
         Log.success("采集卡录制已启动，开始时间：" + startTime)

@@ -1,11 +1,9 @@
-from app.models import Users, Permission_groups, Settings
-from app.util.DataBaseTools import getPageContent, getMaxPage, writeAccessLog, writeSystemLog, writeAudit
-from app.util.Request import RequestLoadJson, getClientIp
-from app.util.Response import ResponseJson
-from app.util.logger import Log
+from app.models import Users
+from app.util.DataBaseTools import getPageContent, getMaxPage, writeAccessLog, writeAudit
+from util.Request import RequestLoadJson, getClientIp
+from util.Response import ResponseJson
+from util.logger import Log
 from app.util.permission import *
-
-import json
 
 
 # 获取权限组列表

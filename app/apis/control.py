@@ -1,8 +1,8 @@
-from app.util.logger import Log
+from util.logger import Log
 from app.util.DataBaseTools import writeAudit
 import app.apps as apps
-from app.util.Request import RequestLoadJson
-from app.util.Response import ResponseJson
+from util.Request import RequestLoadJson
+from util.Response import ResponseJson
 
 
 def fastInput(req):

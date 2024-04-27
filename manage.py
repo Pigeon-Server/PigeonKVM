@@ -5,10 +5,11 @@ import sys
 import signal
 import time
 
-from app.util.logger import Log
+from util.logger import Log
 import app.apps
 
 stop = False
+
 
 def main():
     """Run administrative tasks."""
@@ -23,17 +24,19 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
 
+
 def stopSignal(signum, frame):
     global stop
     print(signum)
     print(frame)
-    if stop is not True: 
+    if stop is not True:
         Log.success("应用程序正在停止......")
         stop = True
         app.apps.cameraObj.stopCamera()
         time.sleep(3)
         os._exit(0)
     return signum
+
 
 if __name__ == '__main__':
     Log.info("应用程序启动中......")

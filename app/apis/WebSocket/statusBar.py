@@ -3,9 +3,7 @@ import json
 from channels.exceptions import StopConsumer
 from channels.generic.websocket import WebsocketConsumer
 
-import app.apps as app
-import app.util.Config as Config
-from app.util.logger import Log
+from util.logger import Log
 
 links = {}
 

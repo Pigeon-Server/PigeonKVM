@@ -1,6 +1,6 @@
 from django.core.management import BaseCommand
 from app.models import *
-from app.util.logger import Log
+from util.logger import Log
 from app.util.PasswordTools import GeneratePassword, PasswordToMd5
 
 class Command(BaseCommand):

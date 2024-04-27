@@ -4,7 +4,7 @@ import serial
 import manage
 from queue import Queue 
 from threading import Thread
-from app.util.logger import Log
+from util.logger import Log
 
 
 class ch3929:

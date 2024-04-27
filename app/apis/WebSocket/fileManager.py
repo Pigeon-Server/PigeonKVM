@@ -4,20 +4,21 @@ import os
 from channels.exceptions import StopConsumer
 from channels.generic.websocket import WebsocketConsumer
 
-import app.apps as app
-import app.util.Config as Config
 from threading import Thread
-from app.util.logger import Log
+
+from django.apps import apps
+
+from util.logger import Log
 import app.util.FileTools as FT
 from app.models import Temporary_link, Users
 
-from app.util.DataBaseTools import writeFileChangeLog, writeAccessLog, writeAudit
+from app.util.DataBaseTools import writeFileChangeLog, writeAccessLog
 
 links = {}
 
 
 class fileManagerPageWebSocket(WebsocketConsumer):
-    __homePath = Config.main_config.get("USB").get("homePath")
+    __homePath = None
     __currentEditor = None
     __userID = None
     __clientIP = None
@@ -28,6 +29,9 @@ class fileManagerPageWebSocket(WebsocketConsumer):
         self.__userID = self.scope["session"].get("userID")
         self.__clientIP = self.scope["client"][0]
         if user:
+            from setting.entity.Config import config
+            config: config = apps.get_app_config('setting').get_config()
+            self.__homePath = config.base.USB_MountDirectory
             self.accept()
             # links.update({user: self})
             Log.success(f"用户{user}已连接")

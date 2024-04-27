@@ -1,7 +1,7 @@
 from django.utils.deprecation import MiddlewareMixin
 from django.shortcuts import redirect
 from app.models import Users
-from app.util.Response import ResponseJson
+from util.Response import ResponseJson
 from app.util.permission import groupPermission
 
 class PermissionsMiddleware(MiddlewareMixin):

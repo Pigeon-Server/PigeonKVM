@@ -1,8 +1,8 @@
 from app.models import Users, Audit, Access_Log, FileChange_Log, System_Log
 from app.util.DataBaseTools import getPageContent, getMaxPage
-from app.util.Request import RequestLoadJson
-from app.util.Response import ResponseJson
-from app.util.logger import Log
+from util.Request import RequestLoadJson
+from util.Response import ResponseJson
+from util.logger import Log
 
 def getAudit(req):
     if req.method == "POST":
